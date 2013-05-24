@@ -1,0 +1,8 @@
+select 
+	sum(l.lo_extendedprice*l.lo_discount) as revenue 
+from 
+	lineorder l JOIN date d ON
+	(l.lo_orderdate = d.d_datekey 
+		and d.d_year = 1993 
+		and l.lo_discount BETWEEN 1 AND 3 
+		and l.lo_quantity < 25); 

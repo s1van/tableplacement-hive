@@ -1,0 +1,27 @@
+cache-cleanup.sh
+################
+
+Reset /proc/sys/vm/drop_caches to clean up cache. 
+Return immediately, while requires seconds (linear to the size of used memory) to complete.
+
+
+
+fillTemplate.py
+###############
+
+Fill templates in ../template
+
+
+
+load_tbl_hdfs.sh
+################
+
+Copy all .tbl in a folder to a specified HDFS folder.
+
+
+
+columnGrpSQL.py
+###############
+
+Generate SQL queries to setup given column groups. E.g.
+1. 
