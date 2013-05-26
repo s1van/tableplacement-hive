@@ -7,7 +7,7 @@ import sys
 def usage():
 	print "Usage: columnGrpSQL.py [--help] --columns=column_names --types=column_types" 
 	print "		--groups=column_groups --key=primary_keys --table=table_name"
-	print "Example: columnGrpSQL.py --columns=a,b,c --types=INT,TINYINT,STRING --groups=3,1:2 --keys=1,2 --table=lineorder"
+	print "Example: columnGrpSQL.py --columns=a,b,c --types=INT,TINYINT,STRING --groups=2,0:1 --keys=0,1 --table=lineorder"
 	print ""
 
 def columnSplit(s):
@@ -66,7 +66,7 @@ def main():
 		cst = cst + 'CG' + str(gindex) + '<'
 		cgpos = 0;
 		for cindex in group:
-			cst = cst + columns[int(cindex)-1] + ':' + types[int(cindex)-1]
+			cst = cst + columns[int(cindex)] + ':' + types[int(cindex)]
 			if cindex != group[-1]:
 				cst = cst + ', '
 				if (cgpos + 1)%4 == 0:
@@ -76,7 +76,7 @@ def main():
 			cgpos = cgpos + 1
 		gindex = gindex + 1
 	for kindex in keys:
-		cst = cst + columns[kindex-1] + ' ' + types[kindex-1]
+		cst = cst + columns[kindex] + ' ' + types[kindex]
 		if kindex != keys[-1]:
 			cst = cst + ', '
 		else:
@@ -84,7 +84,7 @@ def main():
 
 	cst = cst + "\nCLUSTERED BY (" 
 	for kindex in keys:
-		cst = cst + columns[kindex-1] 
+		cst = cst + columns[kindex] 
 		if kindex != keys[-1]:
 			cst = cst + ', '
 		else:
@@ -97,10 +97,10 @@ def main():
 	
 	ist = "INSERT OVERWRITE TABLE " + table + "_s \nSELECT\n\t"
 	for group in groups:
-		ist = ist + 'name_struct(' 
+		ist = ist + 'named_struct(' 
 		cgpos = 0;
 		for cindex in group:
-			ist = ist + columns[int(cindex)-1] + ', ' + columns[int(cindex)-1]
+			ist = ist + "'" + columns[int(cindex)] + "'" + ', ' + columns[int(cindex)]
 			if cindex != group[-1]:
 				ist = ist + ', '
 				if (cgpos + 1)%3 == 0:
@@ -110,14 +110,14 @@ def main():
 			cgpos = cgpos + 1
 
 	for kindex in keys:
-		ist = ist + columns[kindex-1] + ' ' + types[kindex-1]
+		ist = ist + columns[kindex] 
 		if kindex != keys[-1]:
 			ist = ist + ', '
 		else:
 			ist = ist + '\n'
-	ist = ist + "from " + table + "_t\n\tCLUSTER BY "
+	ist = ist + "FROM " + table + "_t\n\tCLUSTER BY "
 	for kindex in keys:
-		ist = ist + columns[kindex-1] + ' ' + types[kindex-1]
+		ist = ist + columns[kindex] 
 		if kindex != keys[-1]:
 			ist = ist + ', '
 		else:
@@ -131,7 +131,7 @@ def main():
 	for group in groups:
 		cgpos = 0;
 		for cindex in group:
-			cvt = cvt + 'CG' + str(gindex) + '.' + columns[int(cindex)-1] + " AS " + columns[int(cindex)-1]
+			cvt = cvt + 'CG' + str(gindex) + '.' + columns[int(cindex)] + " AS " + columns[int(cindex)]
 			if cindex != group[-1]:
 				cvt = cvt + ', '
 				if (cgpos + 1)%3 == 0:
