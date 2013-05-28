@@ -78,7 +78,7 @@ SSB-Batch() {
 
 	echo "Set HDFS Buffer Size, Row Group Size"
 	VARS="HDFS_BUF_SIZE RGSIZE";
-	VALS="524288 $RGSIZE";
+	VALS="524288 $(($RGSIZE * 1024 * 1024))";
 	HEADSET=$(mktemp);
 	$UTILD/fillTemplate.py --vars="$VARS" --vals="$VALS" --template=$TPLD/head.template > $HEADSET;
 	cat $HEADSET
@@ -95,7 +95,7 @@ SSB-Batch() {
 	for bufsize in $HDFS_BUF_SIZES; do
 		for osbuf in $OS_READAHEAD_SIZES; do
 			echo "Set HDFS Buffer Size, OS Readahead Buffer"
-			VALS="$bufsize $RGSIZE";
+			VALS="$(($bufsize * 1024)) $(($RGSIZE * 1024))";
 			sudo blockdev --setra $osbuf $DEVICE;
 			
 			$UTILD/fillTemplate.py --vars="$VARS" --vals="$VALS" --template=$TPLD/head.template > $HEADSET;
