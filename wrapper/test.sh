@@ -94,12 +94,13 @@ SSB-Batch() {
 
 	for bufsize in $HDFS_BUF_SIZES; do
 		for osbuf in $OS_READAHEAD_SIZES; do
-			echo "Set HDFS Buffer Size, OS Readahead Buffer"
+			echo -e "\nSet HDFS Buffer Size, OS Readahead Buffer"
 			VALS="$(($bufsize * 1024)) $(($RGSIZE * 1024))";
 			sudo blockdev --setra $osbuf $DEVICE;
 			
 			$UTILD/fillTemplate.py --vars="$VARS" --vals="$VALS" --template=$TPLD/head.template > $HEADSET;
 			cat $HEADSET
+			echo "Set OS Readahead Buffer Size ${osbuf}KB"
 
 			run_query ssb1_1 $REP "$(echo -e $FORMAT)" $OUTDIR/ssb1_1_H${bufsize}_O${osbuf}.log $OUTDIR/ssb1_1_H${bufsize}_O${osbuf}.res $HEADSET 
 			run_query ssb1_2 $REP "$(echo -e $FORMAT)" $OUTDIR/ssb1_2_H${bufsize}_O${osbuf}.log $OUTDIR/ssb1_2_H${bufsize}_O${osbuf}.res $HEADSET
