@@ -1,0 +1,4 @@
+set io.file.buffer.size=%%HDFS_BUF_SIZE%%;
+set hive.io.rcfile.record.buffer.size=%%RGSIZE%%;
+set hive.enforce.bucketing = true;
+

@@ -5,7 +5,7 @@ import os
 import sys
 
 def usage():
-	print "Usage: fillTemplate.py [--help] --data=excel_form --template=template_file --path=output"
+	print "Usage: fillTemplate.py [--help] --data=excel_form --template=template_file --output=output_file"
 	print "--vars=varaibles"
 	print "		"
 	print "--vals=values"

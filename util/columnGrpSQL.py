@@ -63,7 +63,7 @@ def main():
 	cst = "CREATE TABLE " + table + "_s (\n\t"
 	gindex = 1 
 	for group in groups:
-		cst = cst + 'CG' + str(gindex) + '<'
+		cst = cst + 'CG' + str(gindex) + ' STRUCT<'
 		cgpos = 0;
 		for cindex in group:
 			cst = cst + columns[int(cindex)] + ':' + types[int(cindex)]
@@ -89,7 +89,7 @@ def main():
 			cst = cst + ', '
 		else:
 			cst = cst + ')'
-	cst = cst + " INTO %%L_B_NUM%% BUCKETS"
+	cst = cst + " INTO %%B_NUM%% BUCKETS"
         cst = cst + "\nROW FORMAT DELIMITED FIELDS TERMINATED BY '|'"
         cst = cst + "\nSTORED AS RCFILE LOCATION '%%HIVE_ROOT%%/" + table + "';"
 
@@ -138,7 +138,7 @@ def main():
 					cvt = cvt + '\n\t'
 			else:
 				if group != groups[-1]:	
-					cvt = cvt + '\n\t' 
+					cvt = cvt + ',\n\t' 
 				else:
 					cvt += '\n'
 			cgpos = cgpos + 1

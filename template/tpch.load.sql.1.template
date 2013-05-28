@@ -1,16 +1,12 @@
-DROP TABLE customer;
-DROP TABLE lineitem;
-DROP TABLE nation;
-DROP TABLE orders;
-DROP TABLE part;
-DROP TABLE partsupp;
-DROP TABLE region;
-DROP TABLE supplier;
+DROP TABLE IF EXISTS customer;
+DROP TABLE IF EXISTS lineitem;
+DROP TABLE IF EXISTS nation;
+DROP TABLE IF EXISTS orders;
+DROP TABLE IF EXISTS part;
+DROP TABLE IF EXISTS partsupp;
+DROP TABLE IF EXISTS region;
+DROP TABLE IF EXISTS supplier;
 
-
-set hive.enforce.bucketing = true;
-set hive.io.rcfile.record.buffer.size = %%RGSIZE%%;
-set hive.io.rcfile.column.number.conf = %%COLNUM%%;
 
 -- customer
 create external table customer_t (C_CUSTKEY INT, C_NAME STRING, C_ADDRESS STRING, 
