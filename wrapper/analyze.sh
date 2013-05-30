@@ -62,11 +62,12 @@ ssb-list-stat() {
 batch-ssb-list-stat() {
 	local DIR=$1;
 	local PREFIX=$2;
+	local ATTR=$3;
 
 	lists=$(ls $DIR| grep "${PREFIX}-RG");
 	for list in $lists; do
 		RGSIZE=$(echo $list| sed -e "s@${PREFIX}-RG@@g");
-		ssb-list-stat $DIR/$list Median | awk -v rg=$RGSIZE '{OFS="\t"} {
+		ssb-list-stat $DIR/$list $ATTR | awk -v rg=$RGSIZE '{OFS="\t"} {
 			$8=$9=$10=""; 
 			if (NR==1) $1 = $1 FS "Row_Group_Size"; 
 			else $1 = $1 FS rg; 
