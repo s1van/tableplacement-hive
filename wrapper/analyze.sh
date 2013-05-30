@@ -55,8 +55,23 @@ ssb-list-stat() {
 	local QUERY=$3;
 
 	COLNAMES='Cumlulative_CPU\tHDFS_Read\tHDFS_Write\tTime_taken\t#Mapper\t#Reducer\t#Row';
-	echo -e "Query\tHDFS Buffer\tOS Buffer\t$COLNAMES";
+	echo -e "Query\tHDFS_Buffer\tOS_Buffer\t$COLNAMES";
 	list-stat $DIR $KEYWORD| sed -e "s@${KEYWORD}@@g" | awk -F'_' '{print $1"."$2, substr($3,2), substr($4,2)}'| grep "$QUERY"; 
+}
+
+batch-ssb-list-stat() {
+	local DIR=$1;
+	local PREFIX=$2;
+
+	lists=$(ls $DIR| grep "${PREFIX}-RG");
+	for list in $lists; do
+		RGSIZE=$(echo $list| sed -e "s@${PREFIX}-RG@@g");
+		ssb-list-stat $DIR/$list Median | awk -v rg=$RGSIZE '{OFS="\t"} {
+			$8=$9=$10=""; 
+			if (NR==1) $1 = $1 FS "Row_Group_Size"; 
+			else $1 = $1 FS rg; 
+			print $0;}'
+	done
 }
 
 
