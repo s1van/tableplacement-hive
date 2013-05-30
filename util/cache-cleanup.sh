@@ -10,6 +10,8 @@ usage()
 	echo "          folder to write in"
 	echo "  -f  "
 	echo "          standard way to clean up the cache"
+	echo "  -b  "
+	echo "          standard way to clean up the cache and wait"
 	echo "  -r  "
 	echo "          remove the temporary file"
 	echo
@@ -31,7 +33,7 @@ then
 	exit
 fi
 
-while getopts "rfs:p:" OPTION
+while getopts "rfs:p:b" OPTION
 do
 	case $OPTION in
 		s)
@@ -43,6 +45,22 @@ do
 		f)
 			echo "Fast Flushing..."
 			echo "echo 3 > /proc/sys/vm/drop_caches"|sudo su;
+			exit
+			;;
+		b)
+			echo "Blocked Flushing..."
+			echo "echo 3 > /proc/sys/vm/drop_caches"|sudo su;
+			Cached1=$(grep MemTotal /proc/meminfo| awk '{print $2/1024}');
+			while true; do
+				Cached2=$(grep -e "^Cached" /proc/meminfo| awk '{print $2/1024}');
+				DONE=$(echo "$Cached1 - $Cached2 < 20"|bc -q);
+				if [ "$DONE" -ne "1" ]; then
+					sleep 1
+				else
+					break
+				fi
+				Cached1=$Cached2;
+			done
 			exit
 			;;
 		r)
@@ -64,3 +82,4 @@ if [[ $RFLAG = "true" ]];
 then
 	rm $TMP
 fi
+

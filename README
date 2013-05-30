@@ -1,1 +1,3 @@
-Start from tests/ or wrapper/test.sh
+Modify and run wrapper/setup.sh first
+Then start from tests/ or wrapper/test.sh
+
