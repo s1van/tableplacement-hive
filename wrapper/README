@@ -1,0 +1,6 @@
+##############
+##analyze.sh##
+############
+
+"batch-ssb() DIR" 			extract useful results into .res
+"batch-ssb-list-stat() DIR PREFIX ATTR" list select results in DIR with a given PREFIX (ssb1, ssb2, ...) on a specific ATTR (Mean, Median, Variance, ...)
