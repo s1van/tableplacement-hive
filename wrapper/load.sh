@@ -30,7 +30,7 @@ base1() {
 	echo "Generate hive para parameters"
 	cat $LOAD_HEAD|tee $DLOAD_SQL;
 
-	VALS="${HDFS_R}_S${SCALE} $HIVE_R $BVALS";
+	VALS="${HDFS_R}_s${SCALE} $HIVE_R $BVALS";
 	echo "####`echo $0| awk -F/ '{print $NF}'`####";
 	echo "Generate load_data.sql with parameter $VALS"
 	$UTILD/fillTemplate.py --vars="$VARS" --vals="$VALS" --template=$TEMPLATE >> $DLOAD_SQL;
