@@ -111,7 +111,7 @@ batch() {
 			for osbuf in $OS_READAHEAD_SIZES; do
 				echo -e "\nSet HDFS Buffer Size ${bufsize}KB, OS Readahead Buffer ${osbuf}KB"
 				VALS="$(($bufsize * 1024)) $(($RGSIZE * 1024))";
-				sudo blockdev --setra $osbuf $DEVICE;
+				sudo blockdev --setra $(($osbuf * 2)) $DEVICE;
 				
 				$UTILD/fillTemplate.py --vars="$VARS" --vals="$VALS" --template=$TPLD/head.template > $HEADSET;
 				cat $HEADSET
