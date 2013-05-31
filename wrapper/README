@@ -12,3 +12,9 @@
 
 SSB-Batch RGSIZE LOAD_TPL HDFS_BUF_SIZE OS_READ_AHEAD_BUF_SIZE REP SCALE OUTDIR
 
+###########
+##dgen.sh##
+#########
+
+Generate and Load data into HDFS using dbgen
+./dgen.sh tpch/ssh scale hdfs_path
