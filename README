@@ -1,3 +1,8 @@
+[Pre-installed]
+pdsh
+
+
+[Start]
 Modify and run wrapper/setup.sh first
 Then start from tests/ or wrapper/test.sh
 

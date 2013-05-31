@@ -17,9 +17,6 @@ base() {
 	cat $HEADSET >> $DLOAD_SQL;
 	cat $CONFD/sql.head >> $DLOAD_SQL;
 	
-	echo "Cleanup cache...";
-	$UTILD/cache-cleanup.sh -b;
-	
 	cat $SQL >> $DLOAD_SQL;
 	cat $DLOAD_SQL;
 	

@@ -8,26 +8,36 @@ TPLD=$CDIR/template;
 TPCHD=$CDIR/tpch;
 SSBD=$CDIR/ssb;
 
-#Formats
+source $CONFD/site.conf;
+SLAVE=$HADOOP_HOME/conf/slaves;
+DEV=$(echo $DEVICE| sed 's/dev//g'| sed 's/\///g');
+
+###########
+##Formats##
+#########
 F_CPU_TIME="Total MapReduce CPU Time Spent\t \t1\t0\t6\t8";
 F_JOB_TIME="Time taken:\t \t1\t0\t3\t6";
 f_job() { 
 	local NUM=$1;	
 	echo "Job ${NUM}:\t \t1\t0\t4\t7\t12\t18\t21"
 }
-
-############################################################
+###########################################################
 
 run_query() {
 	local SQL=$1;
 	local FORMAT="$2";
 	local OUT=$3;
 	local RES=$4;
-	local HEADSET=$5;
+	local IOS=$5;
+	local HEADSET=$6;
 	
-	echo "Execute Query $SQL for $REP times ..."
-	touch $OUT;
+	echo "Cleanup Cache...";
+        $UTILD/cache-cleanup.sh -b;
+
+	echo "Execute Query $SQL"
+	pdsh -R ssh -w ^${SLAVE} iostat -d -t -k $DEVICE >> $IOS;
 	$WRAPD/run.sh $SQL $HEADSET >> $OUT 2>&1;
+	pdsh -R ssh -w ^${SLAVE} iostat -d -t -k $DEVICE >> $IOS;
 
 	echo "Extract Results into $RES ..."
 	$UTILD/reshape.py --string="$FORMAT" --input=$OUT >> $RES;
@@ -50,9 +60,9 @@ ssb-query() {
 	local OUTDIR=$4;
 
 	echo "Execute Queries ... [$TAG $HEADSET $OUTDIR]"
-	run_query ssb1_1 "$FORMAT" $OUTDIR/ssb1_1_${TAG}.log $OUTDIR/ssb1_1_${TAG}.res $HEADSET 
-	run_query ssb1_2 "$FORMAT" $OUTDIR/ssb1_2_${TAG}.log $OUTDIR/ssb1_2_${TAG}.res $HEADSET
-	run_query ssb1_3 "$FORMAT" $OUTDIR/ssb1_3_${TAG}.log $OUTDIR/ssb1_3_${TAG}.res $HEADSET
+	run_query ssb1_1 "$FORMAT" $OUTDIR/ssb1_1_${TAG}.log $OUTDIR/ssb1_1_${TAG}.res $OUTDIR/ssb1_1_${TAG}.iostat $HEADSET 
+	run_query ssb1_2 "$FORMAT" $OUTDIR/ssb1_2_${TAG}.log $OUTDIR/ssb1_2_${TAG}.res $OUTDIR/ssb1_2_${TAG}.iostat $HEADSET
+	run_query ssb1_3 "$FORMAT" $OUTDIR/ssb1_3_${TAG}.log $OUTDIR/ssb1_3_${TAG}.res $OUTDIR/ssb1_3_${TAG}.iostat $HEADSET
 }
 
 
@@ -68,7 +78,6 @@ batch() {
 	local F_QUERY=$9;
 	
 	mkdir -p $OUTDIR;
-	source $CONFD/site.conf;
 
 	echo "Delete all tables in current metastore"
 	hive -e 'show tables' | xargs -I {} hive -e "drop table if exists {}";

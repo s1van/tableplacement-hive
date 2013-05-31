@@ -4,3 +4,11 @@
 
 "batch-ssb() DIR" 			extract useful results into .res
 "batch-ssb-list-stat() DIR PREFIX ATTR" list select results in DIR with a given PREFIX (ssb1, ssb2, ...) on a specific ATTR (Mean, Median, Variance, ...)
+
+
+###########
+##test.sh##
+#########
+
+SSB-Batch RGSIZE LOAD_TPL HDFS_BUF_SIZE OS_READ_AHEAD_BUF_SIZE REP SCALE OUTDIR
+

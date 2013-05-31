@@ -3,7 +3,7 @@
 import sys, getopt, string, tempfile
 
 def usage():
-	print "Usage: reshape.py [--help] [--format=formatFile [--input=inputFile]] [--string=formatString]"
+	print "Usage: reshape.py [--help] [--format=formatFile] [--input=inputFile] [--string=formatString]"
 	print """Example: cat input| reshape.py --format=xxx.format"""
 	print """Format: KEYWORD\tDELIMITER\tSKIP\tOFFSET\tCOL#1\tCOL#2..."""
 	print """NOTE: format entries are separated by tabs"""
