@@ -11,6 +11,17 @@ source $CONFD/site.conf;
 DEV=$(echo $DEVICE| sed 's/dev//g'| sed 's/\///g');
 HOSTLIST="$(cat $HADOOP_HOME/conf/slaves)";
 
+###########
+##Formats##
+#########
+F_CPU_TIME="Total MapReduce CPU Time Spent\t \t1\t0\t6\t8";
+F_JOB_TIME="Time taken:\t \t1\t0\t3\t6";
+f_job() {
+        local NUM=$1;
+        echo "Job ${NUM}:\t \t1\t0\t4\t7\t12\t18\t21"
+}
+###########################################################
+
 stat1() {
 	local RES=$1;
 	local OUT=$2;
@@ -47,17 +58,24 @@ list-stat() {
 }
 
 ssb() {
-	local RRES=$1;
+	local LOG=$1;
+	local FORMAT="$2";
 
-	IOSTAT=$(echo $RRES| sed 's/.res/.iostat/g');
-	OUT=$(echo $RRES| sed 's/.res/.stat/g');
+	BASE=$(echo $LOG| sed 's/.log//g');
+
+	RRES=${BASE}.res;
+	echo "Extract Results into $RRES ..."
+        $UTILD/reshape.py --format="$FORMAT" --input=$LOG >> $RRES;
+
+	IOSTAT=${BASE}.iostat;
+	STAT=${BASE}.stat;
 	RES=$(mktemp);
 	awk '{print $7,$8,$9,$3,$5,$6,$4}' $RRES > $RES;
 	COLNAMES='Cumlulative_CPU,HDFS_Read,HDFS_Write,Time_taken,#Mapper,#Reducer,#Row';
 	
-	stat1 $RES $OUT "$COLNAMES";
+	stat1 $RES $STAT "$COLNAMES";
 	for host in $HOSTLIST; do
-		iostat1 $host $DEV $IOSTAT $OUT;
+		iostat1 $host $DEV $IOSTAT $STAT;
 	done
 	
 	rm $RES;
@@ -65,10 +83,14 @@ ssb() {
 
 batch-ssb() {
 	local DIR=$1;
-	
-	RESS="$(find $DIR -iname '*.res')";
+
+	echo "Generate reshape.py format ..."
+        FORMAT="${F_CPU_TIME}\n${F_JOB_TIME}\n$(f_job 0)";
+        echo -e "${FORMAT}" > $DIR/res.format;	
+
+	RESS="$(find $DIR -iname '*.log')";
 	for res in $RESS; do 
-		ssb $res;
+		ssb $res $DIR/res.format;
 	done
 }
 

@@ -25,22 +25,17 @@ f_job() {
 
 run_query() {
 	local SQL=$1;
-	local FORMAT="$2";
-	local OUT=$3;
-	local RES=$4;
-	local IOS=$5;
-	local HEADSET=$6;
+	local LOG=$2;
+	local IOS=$3;
+	local HEADSET=$4;
 	
 	echo "Cleanup Cache...";
         $UTILD/cache-cleanup.sh -b;
 
 	echo "Execute Query $SQL"
 	pdsh -R ssh -w ^${SLAVE} iostat -d -t -k $DEVICE >> $IOS;
-	$WRAPD/run.sh $SQL $HEADSET >> $OUT 2>&1;
+	$WRAPD/run.sh $SQL $HEADSET >> $LOG 2>&1;
 	pdsh -R ssh -w ^${SLAVE} iostat -d -t -k $DEVICE >> $IOS;
-
-	echo "Extract Results into $RES ..."
-	$UTILD/reshape.py --string="$FORMAT" --input=$OUT >> $RES;
 }
 
 
@@ -54,15 +49,14 @@ ssb-load() {
 }
 
 ssb-query() { 
-	local FORMAT="$1";
-	local TAG=$2;	
-	local HEADSET=$3;	#includes RGSIZE, HDFS_BUF_SIZE
-	local OUTDIR=$4;
+	local TAG=$1;	
+	local HEADSET=$2;	#includes RGSIZE, HDFS_BUF_SIZE
+	local OUTDIR=$3;
 
 	echo "Execute Queries ... [$TAG $HEADSET $OUTDIR]"
-	run_query ssb1_1 "$FORMAT" $OUTDIR/ssb1_1_${TAG}.log $OUTDIR/ssb1_1_${TAG}.res $OUTDIR/ssb1_1_${TAG}.iostat $HEADSET 
-	run_query ssb1_2 "$FORMAT" $OUTDIR/ssb1_2_${TAG}.log $OUTDIR/ssb1_2_${TAG}.res $OUTDIR/ssb1_2_${TAG}.iostat $HEADSET
-	run_query ssb1_3 "$FORMAT" $OUTDIR/ssb1_3_${TAG}.log $OUTDIR/ssb1_3_${TAG}.res $OUTDIR/ssb1_3_${TAG}.iostat $HEADSET
+	run_query ssb1_1 $OUTDIR/ssb1_1_${TAG}.log $OUTDIR/ssb1_1_${TAG}.iostat $HEADSET 
+	run_query ssb1_2 $OUTDIR/ssb1_2_${TAG}.log $OUTDIR/ssb1_2_${TAG}.iostat $HEADSET
+	run_query ssb1_3 $OUTDIR/ssb1_3_${TAG}.log $OUTDIR/ssb1_3_${TAG}.iostat $HEADSET
 }
 
 
@@ -102,10 +96,6 @@ batch() {
 	echo "Loading Data into Hive ... [$F_LOAD $SCALE $LOAD_WHICH $HEADSET $OUTDIR]"
 	$F_LOAD $SCALE $LOAD_WHICH $HEADSET $OUTDIR;
 	
-	echo "Execute Batched Queries ..."
-	FORMAT="${F_CPU_TIME}\n${F_JOB_TIME}\n$(f_job 0)";
-	echo -e "${FORMAT}" >> $OUTDIR/res.format;
-
 	for rnum in $(seq 1 $REP); do
 		for bufsize in $HDFS_BUF_SIZES; do
 			for osbuf in $OS_READAHEAD_SIZES; do
@@ -115,7 +105,7 @@ batch() {
 				
 				$UTILD/fillTemplate.py --vars="$VARS" --vals="$VALS" --template=$TPLD/head.template > $HEADSET;
 				cat $HEADSET
-				$F_QUERY "$(echo -e $FORMAT)" "H${bufsize}_O${osbuf}" $HEADSET $OUTDIR
+				$F_QUERY "H${bufsize}_O${osbuf}" $HEADSET $OUTDIR
 			done
 		done
 	done
