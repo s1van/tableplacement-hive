@@ -33,8 +33,9 @@ ssb-load() {
 	local LOAD_WHICH=$2;	#corresponding to templates (in reference to util/load.sh)
 	local HEADSET=$3;	#includes RGSIZE, HDFS_BUF_SIZE
 	local OUTDIR=$4;
+	local HDFS_DATA_PATH=$5;
 
-	$WRAPD/load.sh $LOAD_WHICH $SCALE $HEADSET > $OUTDIR/ssb_load.sql 2>&1;
+	$WRAPD/load.sh $LOAD_WHICH $SCALE $HEADSET $HDFS_DATA_PATH > $OUTDIR/ssb_load.sql 2>&1;
 }
 
 ssb-query() { 
@@ -57,8 +58,9 @@ batch() {
         local REP=$5;
         local SCALE=$6;
         local OUTDIR=$7;
-	local F_LOAD=$8;
-	local F_QUERY=$9;
+	local HDFS_DATA_PATH=$8;
+	local F_LOAD=$9;
+	local F_QUERY=${10};
 	
 	mkdir -p $OUTDIR;
 
@@ -83,7 +85,7 @@ batch() {
 	echo "Start Testing ..."
 
 	echo "Loading Data into Hive ... [$F_LOAD $SCALE $LOAD_WHICH $HEADSET $OUTDIR]"
-	$F_LOAD $SCALE $LOAD_WHICH $HEADSET $OUTDIR;
+	$F_LOAD $SCALE $LOAD_WHICH $HEADSET $OUTDIR $HDFS_DATA_PATH;
 	
 	for rnum in $(seq 1 $REP); do
 		for bufsize in $HDFS_BUF_SIZES; do
@@ -104,7 +106,7 @@ batch() {
 
 SSB-Batch() {
 	echo "SSB-Batch [$@]"
-	batch $1 $2 $3 $4 $5 $6 $7 ssb-load ssb-query;
+	batch $1 $2 $3 $4 $5 $6 $7 $8 ssb-load ssb-query;
 }
 
 
