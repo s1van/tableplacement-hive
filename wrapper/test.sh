@@ -63,8 +63,8 @@ batch() {
 	mkdir -p $OUTDIR;
 
 	echo "Delete all tables in current metastore"
-	hive -e 'show tables' | xargs -I {} hive -e "drop table if exists {}";
-	hive -e 'show tables' | xargs -I {} hive -e "drop view if exists {}";
+	$HIVE -e 'show tables' | xargs -I {} $HIVE -e "drop table if exists {}";
+	$HIVE -e 'show tables' | xargs -I {} $HIVE -e "drop view if exists {}";
 
 	echo "Store the Parameters"
 	touch $OUTDIR/README;

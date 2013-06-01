@@ -3,6 +3,9 @@ pdsh
 
 
 [Start]
-Modify and run wrapper/setup.sh first
-Then start from tests/ or wrapper/test.sh
+Configure>	modify conf/site.conf
+Setup>		wrapper/setup.sh HDFS_BLOCK_SIZE JAVA_HEAP_SIZE MAPRED_OUT_DIR
+Generate Data>	wrapper/dgen.sh WORKLOAD SCALE_FACTOR HDFS_PATH
+	(WORKLOAD) ssb, tpch
+Test>		wrapper/test.sh
 

@@ -27,7 +27,7 @@ base1() {
 	done
 	
 	DLOAD_SQL=$(mktemp);
-	echo "Generate hive para parameters"
+	echo "Generate hive parameters"
 	cat $LOAD_HEAD|tee $DLOAD_SQL;
 
 	VALS="${HDFS_R}_s${SCALE} $HIVE_R $BVALS";
@@ -37,7 +37,7 @@ base1() {
 	cat $DLOAD_SQL;
 	
 	echo "Load Data ..."
-	hive -f $DLOAD_SQL;
+	$HIVE -f $DLOAD_SQL;
 	
 	rm -f $DLOAD_SQL;
 }

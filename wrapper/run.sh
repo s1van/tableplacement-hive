@@ -7,6 +7,7 @@ TPLD=$CDIR/template;
 TPCHD=$CDIR/tpch;
 SSBD=$CDIR/ssb;
 
+source $CONFD/site.conf;
 
 base() {
 	local SQL=$1;
@@ -21,7 +22,7 @@ base() {
 	cat $DLOAD_SQL;
 	
 	echo "Execute Query ..."
-	hive -f $DLOAD_SQL;
+	$HIVE -f $DLOAD_SQL;
 	
 	rm -f $DLOAD_SQL;
 }

@@ -35,8 +35,10 @@ do
                         ;;
         esac
 done
+CONFD=`dirname $0`/../conf;
+source $CONFD/site.conf;
 
-HDFS="hadoop fs";
+HDFS="$HADOOP fs";
 
 TABLES=$(ls $FROM| grep '.tbl'| sed 's/.tbl//g');
 for tbl in $TABLES; do
