@@ -5,7 +5,8 @@ WRAPD=$CDIR/wrapper;
 DIR=$1;
 mkdir -p $DIR;
 
-RGS="4 16 64 256";	# row group size (MB)
+#RGS="4 16 64 256";	# row group size (MB)
+RGS="256";	# row group size (MB)
 #BUFS="64,128,256";	# HDFS buffer size (KB)
 BUFS="128";	# HDFS buffer size (KB)
 #OSRS="0,128,256,512,1024";	# os read ahead buffer size (KB)
