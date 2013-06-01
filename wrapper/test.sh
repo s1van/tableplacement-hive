@@ -12,17 +12,6 @@ source $CONFD/site.conf;
 SLAVE=$HADOOP_HOME/conf/slaves;
 DEV=$(echo $DEVICE| sed 's/dev//g'| sed 's/\///g');
 
-###########
-##Formats##
-#########
-F_CPU_TIME="Total MapReduce CPU Time Spent\t \t1\t0\t6\t8";
-F_JOB_TIME="Time taken:\t \t1\t0\t3\t6";
-f_job() { 
-	local NUM=$1;	
-	echo "Job ${NUM}:\t \t1\t0\t4\t7\t12\t18\t21"
-}
-###########################################################
-
 run_query() {
 	local SQL=$1;
 	local LOG=$2;

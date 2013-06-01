@@ -69,16 +69,38 @@ ssb() {
 
 	IOSTAT=${BASE}.iostat;
 	STAT=${BASE}.stat;
-	RES=$(mktemp);
-	awk '{print $7,$8,$9,$3,$5,$6,$4}' $RRES > $RES;
+	MAP=${BASE}.mapper;
+	TMP1=$(mktemp);
+	TMP2=$(mktemp);
+
+	awk '{print $7,$8,$9,$3,$5,$6,$4}' $RRES> $TMP1;
 	COLNAMES='Cumlulative_CPU,HDFS_Read,HDFS_Write,Time_taken,#Mapper,#Reducer,#Row';
 	
-	stat1 $RES $STAT "$COLNAMES";
+	echo "Refine $TMP1 to form $STAT ..."
+	stat1 $TMP1 $STAT "$COLNAMES";
+
+	echo "Deal with Jobs in $LOG ..."
+	JOBS=$(grep 'Tracking URL' $LOG| awk -F'=' '{print $3"="$4}'| sed 's/jobdetails/jobtasks/g');
+	JNAMES=$(grep 'Tracking URL' $LOG| awk -F'=' '{if(NR==1) printf "%s", $4; else printf ",%s", $4;}');
+	touch $MAP;
+	for job in $JOBS; do
+		curl $job'&type=map&pagenum=1' 2>/dev/null| grep sec|sed 's/\(.*\)(\([0-9]*\)sec)\(.*\)/\2/g'| paste - $MAP > $TMP1
+		cp $TMP1 $MAP;
+	done
+	cp $MAP $TMP1;
+	stat1 $TMP1 $TMP2 "$JNAMES";
+	cat $TMP2 >> $MAP;
+	sed 's/\t/\n/g' $TMP1 > $TMP2;
+	stat1 $TMP2 $TMP1 "Mapper";
+	paste $STAT $TMP1 > $TMP2;
+	cp $TMP2 $STAT;
+
 	for host in $HOSTLIST; do
 		iostat1 $host $DEV $IOSTAT $STAT;
 	done
 	
-	rm $RES;
+	rm $TMP1;
+	rm $TMP2;
 }
 
 batch-ssb() {
@@ -99,8 +121,8 @@ ssb-list-stat() {
 	local KEYWORD=$2;
 	local QUERY=$3;
 
-	COLNAMES='CPU\tHDFS_Read\tHDFS_Write\tTime\t#Mapper\t#Reducer\t#Row';
-	echo -e "Query\tHDFS_Buf\tOS_Buf\t$COLNAMES";
+	COLNAMES='CPU:s\tH_Read:KB\tH_Write:KB\tTotal:s\t#Mapper\t#Reducer\t#Row\tMapper:s';
+	echo -e "Query\tH_Buf:KB\tOS_Buf:KB\t$COLNAMES";
 	list-stat $DIR $KEYWORD| sed -e "s@${KEYWORD}@@g" | awk -F'_' '{print $1"."$2, substr($3,2), substr($4,2)}'| grep "$QUERY"; 
 }
 
@@ -114,7 +136,7 @@ batch-ssb-list-stat() {
 		RGSIZE=$(echo $list| sed -e "s@${PREFIX}-RG@@g");
 		ssb-list-stat $DIR/$list $ATTR | awk -v rg=$RGSIZE '{OFS="\t"} {
 			$8=$9=$10=""; 
-			if (NR==1) $1 = $1 FS "RGsize"; 
+			if (NR==1) $1 = $1 FS "RG:M"; 
 			else $1 = $1 FS rg; 
 			print $0;}' | sed 's/\t\t/\t/g'
 	done
