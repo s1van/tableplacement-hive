@@ -71,6 +71,7 @@ ssb() {
 	IOSTAT=${BASE}.iostat;
 	STAT=${BASE}.stat;
 	MAP=${BASE}.mapper;
+	REDUCE=${BASE}.reducer;
 	TMP1=$(mktemp);
 	TMP2=$(mktemp);
 
@@ -86,12 +87,18 @@ ssb() {
 	paste $STAT $TMP1 > $TMP2;
 	cp $TMP2 $STAT;
 
+	echo "Distill $REDUCE to form $STAT"
+	sed 's/\t/\n/g' $REDUCE > $TMP2;
+	stat1 $TMP2 $TMP1 "Reducer";
+	paste $STAT $TMP1 > $TMP2;
+	cp $TMP2 $STAT;
+
 	for host in $HOSTLIST; do
 		iostat1 $host $DEV $IOSTAT $STAT;
 	done
 	
-	rm $TMP1;
-	rm $TMP2;
+	echo "";
+	rm $TMP1 $TMP2;
 }
 
 batch-ssb() {
@@ -112,7 +119,7 @@ ssb-list-stat() {
 	local KEYWORD=$2;
 	local QUERY=$3;
 
-	COLNAMES='CPU:s\tH_Read:B\tH_Write:B\tTotal:s\t#Mapper\t#Reducer\t#Row\tMapper:s\tRR:KB\tRW:KB';
+	COLNAMES='CPU:s\tH_Read:B\tH_Write:B\tTotal:s\t#Mapper\t#Reducer\t#Row\tMapper:s\tReducer:s\tRR:KB\tRW:KB';
 	echo -e "Query\tH_Buf:KB\tOS_Buf:KB\t$COLNAMES";
 	list-stat $DIR $KEYWORD| sed -e "s@${KEYWORD}@@g" | awk -F'_' '{print $1"."$2, substr($3,2), substr($4,2)}'| grep "$QUERY"; 
 }

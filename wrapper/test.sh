@@ -12,19 +12,22 @@ source $CONFD/site.conf;
 SLAVE=$HADOOP_HOME/conf/slaves;
 DEV=$(echo $DEVICE| sed 's/dev//g'| sed 's/\///g');
 
-update-mapper-info() {
+update-task-info() {
 	local LOG=$1;
 	local MAP=$2;
+	local REDUCE=$3;
 	
 	local TMP1=$(mktemp);
 	echo "Deal with the last Job in $LOG ..."
 	#JOBS=$(grep 'Tracking URL' $LOG| awk -F'=' '{print $3"="$4}'| sed 's/jobdetails/jobtasks/g');
 	JOBS=$(grep 'Tracking URL' $LOG| awk -F'=' '{print $3"="$4}'| sed 's/jobdetails/jobtasks/g'| tail -1);
 	JNAMES=$(grep 'Tracking URL' $LOG| awk -F'=' '{if(NR==1) printf "%s", $4; else printf ",%s", $4;}');
-	touch $MAP;
+	touch $MAP $REDUCE;
 	for job in $JOBS; do
 	        curl $job'&type=map&pagenum=1' 2>/dev/null| grep sec|sed 's/\(.*\)(\([0-9]*\)sec)\(.*\)/\2/g'| paste - $MAP > $TMP1
 	        cp $TMP1 $MAP;
+	        curl $job'&type=reduce&pagenum=1' 2>/dev/null| grep sec|sed 's/\(.*\)(\([0-9]*\)sec)\(.*\)/\2/g'| paste - $REDUCE > $TMP1
+	        cp $TMP1 $REDUCE;
 	done
 	
 	rm $TMP1;
@@ -38,6 +41,7 @@ run_query() {
 	local LOG=${BASE}.log;
 	local IOS=${BASE}.iostat;
 	local MAP=${BASE}.mapper;
+	local REDUCE=${BASE}.reducer;
 	
 	echo "Cleanup Cache...";
         $UTILD/cache-cleanup.sh -b;
@@ -50,7 +54,7 @@ run_query() {
 	pdsh -R ssh -w ^${SLAVE} iostat -d -t -k $DEVICE >> $IOS;
 
 	echo "Update Mapper info in $MAP"
-	update-mapper-info $LOG $MAP;
+	update-task-info $LOG $MAP $REDUCE;
 }
 
 
