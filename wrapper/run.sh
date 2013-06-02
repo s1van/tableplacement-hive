@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CDIR=`dirname $0`/../;
+CDIR="$( cd "$( dirname "$0" )" && pwd )/../";
 UTILD=$CDIR/util;
 CONFD=$CDIR/conf;
 TPLD=$CDIR/template;
