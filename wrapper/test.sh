@@ -12,11 +12,32 @@ source $CONFD/site.conf;
 SLAVE=$HADOOP_HOME/conf/slaves;
 DEV=$(echo $DEVICE| sed 's/dev//g'| sed 's/\///g');
 
+update-mapper-info() {
+	local LOG=$1;
+	local MAP=$2;
+	
+	local TMP1=$(mktemp);
+	echo "Deal with the last Job in $LOG ..."
+	#JOBS=$(grep 'Tracking URL' $LOG| awk -F'=' '{print $3"="$4}'| sed 's/jobdetails/jobtasks/g');
+	JOBS=$(grep 'Tracking URL' $LOG| awk -F'=' '{print $3"="$4}'| sed 's/jobdetails/jobtasks/g'| tail -1);
+	JNAMES=$(grep 'Tracking URL' $LOG| awk -F'=' '{if(NR==1) printf "%s", $4; else printf ",%s", $4;}');
+	touch $MAP;
+	for job in $JOBS; do
+	        curl $job'&type=map&pagenum=1' 2>/dev/null| grep sec|sed 's/\(.*\)(\([0-9]*\)sec)\(.*\)/\2/g'| paste - $MAP > $TMP1
+	        cp $TMP1 $MAP;
+	done
+	
+	rm $TMP1;
+}
+
 run_query() {
 	local SQL=$1;
-	local LOG=$2;
-	local IOS=$3;
-	local HEADSET=$4;
+	local BASE=$2;
+	local HEADSET=$3;
+
+	local LOG=${BASE}.log;
+	local IOS=${BASE}.iostat;
+	local MAP=${BASE}.mapper;
 	
 	echo "Cleanup Cache...";
         $UTILD/cache-cleanup.sh -b;
@@ -24,7 +45,12 @@ run_query() {
 	echo "Execute Query $SQL"
 	pdsh -R ssh -w ^${SLAVE} iostat -d -t -k $DEVICE >> $IOS;
 	$WRAPD/run.sh $SQL $HEADSET >> $LOG 2>&1;
+	
+	echo "Collect iostat info to $IOS"
 	pdsh -R ssh -w ^${SLAVE} iostat -d -t -k $DEVICE >> $IOS;
+
+	echo "Update Mapper info in $MAP"
+	update-mapper-info $LOG $MAP;
 }
 
 
@@ -44,9 +70,9 @@ ssb-query() {
 	local OUTDIR=$3;
 
 	echo "Execute Queries ... [$TAG $HEADSET $OUTDIR]"
-	run_query ssb1_1 $OUTDIR/ssb1_1_${TAG}.log $OUTDIR/ssb1_1_${TAG}.iostat $HEADSET 
-	run_query ssb1_2 $OUTDIR/ssb1_2_${TAG}.log $OUTDIR/ssb1_2_${TAG}.iostat $HEADSET
-	run_query ssb1_3 $OUTDIR/ssb1_3_${TAG}.log $OUTDIR/ssb1_3_${TAG}.iostat $HEADSET
+	run_query ssb1_1 $OUTDIR/ssb1_1_${TAG} $HEADSET 
+	run_query ssb1_2 $OUTDIR/ssb1_2_${TAG} $HEADSET
+	run_query ssb1_3 $OUTDIR/ssb1_3_${TAG} $HEADSET
 }
 
 

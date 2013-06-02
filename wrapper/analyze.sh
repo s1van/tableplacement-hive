@@ -57,6 +57,7 @@ list-stat() {
 	done
 }
 
+
 ssb() {
 	local LOG=$1;
 	local FORMAT="$2";
@@ -79,18 +80,8 @@ ssb() {
 	echo "Refine $TMP1 to form $STAT ..."
 	stat1 $TMP1 $STAT "$COLNAMES";
 
-	echo "Deal with Jobs in $LOG ..."
-	JOBS=$(grep 'Tracking URL' $LOG| awk -F'=' '{print $3"="$4}'| sed 's/jobdetails/jobtasks/g');
-	JNAMES=$(grep 'Tracking URL' $LOG| awk -F'=' '{if(NR==1) printf "%s", $4; else printf ",%s", $4;}');
-	touch $MAP;
-	for job in $JOBS; do
-		curl $job'&type=map&pagenum=1' 2>/dev/null| grep sec|sed 's/\(.*\)(\([0-9]*\)sec)\(.*\)/\2/g'| paste - $MAP > $TMP1
-		cp $TMP1 $MAP;
-	done
-	cp $MAP $TMP1;
-	stat1 $TMP1 $TMP2 "$JNAMES";
-	cat $TMP2 >> $MAP;
-	sed 's/\t/\n/g' $TMP1 > $TMP2;
+	echo "Distill $MAP to form $STAT"
+	sed 's/\t/\n/g' $MAP > $TMP2;
 	stat1 $TMP2 $TMP1 "Mapper";
 	paste $STAT $TMP1 > $TMP2;
 	cp $TMP2 $STAT;
