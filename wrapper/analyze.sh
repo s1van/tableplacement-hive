@@ -112,7 +112,7 @@ ssb-list-stat() {
 	local KEYWORD=$2;
 	local QUERY=$3;
 
-	COLNAMES='CPU:s\tH_Read:KB\tH_Write:KB\tTotal:s\t#Mapper\t#Reducer\t#Row\tMapper:s';
+	COLNAMES='CPU:s\tH_Read:B\tH_Write:B\tTotal:s\t#Mapper\t#Reducer\t#Row\tMapper:s\tRR:KB\tRW:KB';
 	echo -e "Query\tH_Buf:KB\tOS_Buf:KB\t$COLNAMES";
 	list-stat $DIR $KEYWORD| sed -e "s@${KEYWORD}@@g" | awk -F'_' '{print $1"."$2, substr($3,2), substr($4,2)}'| grep "$QUERY"; 
 }
