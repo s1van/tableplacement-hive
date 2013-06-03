@@ -101,7 +101,7 @@ ssb() {
 	rm $TMP1 $TMP2;
 }
 
-batch-ssb() {
+batch-extract() {
 	local DIR=$1;
 
 	echo "Generate reshape.py format ..."
@@ -119,12 +119,12 @@ ssb-list-stat() {
 	local KEYWORD=$2;
 	local QUERY=$3;
 
-	COLNAMES='CPU:s\tH_Read:B\tH_Write:B\tTotal:s\t#Mapper\t#Reducer\t#Row\tMapper:s\tReducer:s\tRR:KB\tRW:KB';
-	echo -e "Query\tH_Buf:KB\tOS_Buf:KB\t$COLNAMES";
+	COLNAMES='CPU:s\tHread:B\tHwrite:B\tTotal:s\t#Mapper\t#Reducer\t#Row\tMapper:s\tReducer:s\tRR:KB\tRW:KB';
+	echo -e "Query\tHBuf:KB\tOBuf:KB\t$COLNAMES";
 	list-stat $DIR $KEYWORD| sed -e "s@${KEYWORD}@@g" | awk -F'_' '{print $1"."$2, substr($3,2), substr($4,2)}'| grep "$QUERY"; 
 }
 
-batch-ssb-list-stat() {
+batch-list-stat() {
 	local DIR=$1;
 	local PREFIX=$2;
 	local ATTR=$3;
@@ -134,10 +134,33 @@ batch-ssb-list-stat() {
 		RGSIZE=$(echo $list| sed -e "s@${PREFIX}-RG@@g");
 		ssb-list-stat $DIR/$list $ATTR | awk -v rg=$RGSIZE '{OFS="\t"} {
 			$8=$9=$10=""; 
-			if (NR==1) $1 = $1 FS "RG:M"; 
-			else $1 = $1 FS rg; 
-			print $0;}' | sed 's/\t\t/\t/g'
+			if (NR==1) $1 = $1 OFS "RG:M"; 
+			else $1 = $1 OFS rg; 
+			print $0;}' | sed -e 's/\t\t/\t/g' -e 's/\t\t/\t/g'
 	done
+}
+
+summarize() {
+	local DIR=$1;
+	local PREFIXES="$(echo $2| sed 's/,/ /g')";
+
+	local MEDIAN1=$(mktemp);
+	local MEDIAN2=$(mktemp);
+	local MEAN=$(mktemp);
+	local VARIANCE=$(mktemp);
+
+	for prefix in $PREFIXES; do
+		batch-list-stat $DIR $prefix Median| cut -f -8 > $MEDIAN1;
+		batch-list-stat $DIR $prefix Median| cut -f 11- > $MEDIAN2;
+		batch-list-stat $DIR $prefix Mean| cut -f 9,10 > $MEAN;
+		batch-list-stat $DIR $prefix Variance| cut -f 9,10 > $VARIANCE;
+		paste $MEDIAN1 $MEAN $VARIANCE $MEDIAN2| awk -v pf=$prefix 'BEGIN{OFS="\t"} {
+			if(NR==1) $1 = "TPL" OFS $1;
+			else $1 = pf OFS $1;
+			print $0;}';
+	done
+
+	rm $MEDIAN1 $MEDIAN2 $MEAN $VARIANCE;
 }
 
 

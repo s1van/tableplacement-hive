@@ -24,9 +24,9 @@ update-task-info() {
 	JNAMES=$(grep 'Tracking URL' $LOG| awk -F'=' '{if(NR==1) printf "%s", $4; else printf ",%s", $4;}');
 	touch $MAP $REDUCE;
 	for job in $JOBS; do
-	        curl $job'&type=map&pagenum=1' 2>/dev/null| grep sec|sed 's/\(.*\)(\([0-9]*\)sec)\(.*\)/\2/g'| paste - $MAP > $TMP1
+	        curl $job'&type=map&pagenum=1' 2>/dev/null| egrep 'mins|sec'| sed 's/\(.*\)(\(.*\))\(.*\)/\2/g'| sed -e 's/mins/*60/g' -e 's/,/+/g' -e 's/sec//g'|bc | paste - $MAP > $TMP1
 	        cp $TMP1 $MAP;
-	        curl $job'&type=reduce&pagenum=1' 2>/dev/null| grep sec|sed 's/\(.*\)(\([0-9]*\)sec)\(.*\)/\2/g'| paste - $REDUCE > $TMP1
+	        curl $job'&type=reduce&pagenum=1' 2>/dev/null| egrep 'mins|sec'| sed 's/\(.*\)(\(.*\))\(.*\)/\2/g'| sed -e 's/mins/*60/g' -e 's/,/+/g' -e 's/sec//g'|bc | paste - $REDUCE > $TMP1
 	        cp $TMP1 $REDUCE;
 	done
 	
