@@ -44,7 +44,7 @@ run_query() {
 	local REDUCE=${BASE}.reducer;
 	
 	echo "Cleanup Cache...";
-        $UTILD/cache-cleanup.sh -b;
+        $UTILD/cache-cleanup.sh -g ${SLAVE};
 
 	echo "Execute Query $SQL"
 	pdsh -R ssh -w ^${SLAVE} iostat -d -t -k $DEVICE >> $IOS;

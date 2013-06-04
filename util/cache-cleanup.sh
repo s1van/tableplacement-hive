@@ -4,16 +4,12 @@ usage()
 {
 	echo "Usage: `echo $0| awk -F/ '{print $NF}'`  [-option]"
 	echo "[option]:"
-	echo "  -s  size"
-	echo "          file size in GB "
-	echo "  -p  path"
-	echo "          folder to write in"
 	echo "  -f  "
 	echo "          standard way to clean up the cache"
 	echo "  -b  "
 	echo "          standard way to clean up the cache and wait"
-	echo "  -r  "
-	echo "          remove the temporary file"
+	echo "  -g  hosts_file"
+	echo "          clean up cache for all the hosts in the given file"
 	echo
 	echo "  e.g cache-cleanup.sh -s 30 -p /mnt/shm"
 	echo
@@ -21,27 +17,27 @@ usage()
 	echo
 }
 
-# For compatibility
-SIZE=$1
-TMP=$(mktemp);
-rm $TMP;
-RFLAG=false;
-
 if [ $# -lt 1 ]
 then
 	usage
 	exit
 fi
 
-while getopts "rfs:p:b" OPTION
+BLOCKED_FLUSHING='Cached1=`grep MemTotal /proc/meminfo| awk "{print \\$2/1024}"`; 
+		while true; do 
+			Cached2=`grep -e "^Cached" /proc/meminfo| awk "{print \\$2/1024}"`; 
+			DONE=`echo "$Cached1 - $Cached2 < 20"|bc -q`; 
+			Cached1=$Cached2; 
+			if [ "$DONE" -ne "1" ]; 
+				then sleep 1; 
+			else 
+				break; 
+			fi 
+		done'
+
+while getopts "fbg:" OPTION
 do
 	case $OPTION in
-		s)
-			SIZE=$OPTARG;
-			;;
-		p)
-			TMP=$(mktemp -p $OPTARG);
-			;;
 		f)
 			echo "Fast Flushing..."
 			echo "echo 3 > /proc/sys/vm/drop_caches"|sudo su;
@@ -50,21 +46,21 @@ do
 		b)
 			echo "Blocked Flushing..."
 			echo "echo 3 > /proc/sys/vm/drop_caches"|sudo su;
-			Cached1=$(grep MemTotal /proc/meminfo| awk '{print $2/1024}');
-			while true; do
-				Cached2=$(grep -e "^Cached" /proc/meminfo| awk '{print $2/1024}');
-				DONE=$(echo "$Cached1 - $Cached2 < 20"|bc -q);
-				if [ "$DONE" -ne "1" ]; then
-					sleep 1
-				else
-					break
-				fi
-				Cached1=$Cached2;
-			done
+			eval $BLOCKED_FLUSHING;
 			exit
 			;;
-		r)
-			RFLAG=true;
+		g)
+			HOSTFILE=$OPTARG;
+			HOSTS="$(cat $HOSTFILE)"
+			for host in $HOSTS; do
+				ssh -t -i ~/.ssh/id_rsa $host 'echo "echo 3 > /proc/sys/vm/drop_caches"|sudo su' >/dev/null 2>&1 &
+			done
+			wait;
+			for host in $HOSTS; do
+				ssh $host eval "$BLOCKED_FLUSHING" &
+			done
+			wait;
+			exit
 			;;
 		?)
 			echo "unknown arguments"
@@ -74,12 +70,4 @@ do
 	esac
 done
 
-echo "Write to temp file $TMP"
-#dd if=/dev/zero of=$TMP count=$SIZE bs=1073741824 > /dev/null 2>&1
-dd if=/dev/zero of=$TMP count=$SIZE bs=1073741824
-
-if [[ $RFLAG = "true" ]];
-then
-	rm $TMP
-fi
 
