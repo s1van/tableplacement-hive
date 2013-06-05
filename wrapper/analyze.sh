@@ -15,7 +15,7 @@ HOSTLIST="$(cat $HADOOP_HOME/conf/slaves)";
 ##Formats##
 #########
 F_CPU_TIME="Total MapReduce CPU Time Spent\t \t1\t0\t6\t8";
-F_JOB_TIME="Time taken:\t \t1\t0\t3\t6";
+F_JOB_TIME="Time taken:\t \t1\t0\t3";
 f_job() {
         local NUM=$1;
         echo "Job ${NUM}:\t \t1\t0\t4\t7\t12\t18\t21"
@@ -60,7 +60,7 @@ list-stat() {
 }
 
 
-ssb() {
+extract() {
 	local LOG=$1;
 	local FORMAT="$2";
 
@@ -103,7 +103,7 @@ ssb() {
 	rm $TMP1 $TMP2;
 }
 
-batch-extract() {
+ssb-batch-extract() {
 	local DIR=$1;
 
 	echo "Generate reshape.py format ..."
@@ -112,11 +112,28 @@ batch-extract() {
 
 	LOGS="$(find $DIR -iname '*.log')";
 	for log in $LOGS; do 
-		ssb $log $DIR/res.format;
+		extract $log $DIR/res.format;
 	done
 }
 
-ssb-list-stat() {
+tpch-batch-extract() {
+	local DIR=$1;
+
+	local F_JOB_TIME="Time taken:\t \t3\t3\t3";
+	local F_JOB_ROW="Rows loaded to\t \t1\t0\t1";
+
+	echo "Generate reshape.py format ..."
+        FORMAT="${F_CPU_TIME}\n${F_JOB_TIME}\n${F_JOB_ROW}\n$(f_job 0)";
+        echo -e "${FORMAT}" > $DIR/res.format;	
+
+	LOGS="$(find $DIR -iname '*.log')";
+	for log in $LOGS; do 
+		extract $log $DIR/res.format;
+	done
+}
+
+
+call-list-stat() {
 	local DIR=$1;
 	local KEYWORD=$2;
 	local QUERY=$3;
@@ -134,7 +151,7 @@ batch-list-stat() {
 	lists=$(ls $DIR| grep "${PREFIX}-RG");
 	for list in $lists; do
 		RGSIZE=$(echo $list| sed -e "s@${PREFIX}-RG@@g");
-		ssb-list-stat $DIR/$list $ATTR | awk -v rg=$RGSIZE '{OFS="\t"} {
+		call-list-stat $DIR/$list $ATTR | awk -v rg=$RGSIZE '{OFS="\t"} {
 			$8=$9=$10=""; 
 			if (NR==1) $1 = $1 OFS "RG:M"; 
 			else $1 = $1 OFS rg; 

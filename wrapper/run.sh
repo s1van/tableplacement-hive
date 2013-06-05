@@ -33,7 +33,7 @@ ssb1_2() { base $SSBD/q1_2 $1; }
 ssb1_3() { base $SSBD/q1_3 $1; }
 
 
-tpch6() { base $TPCHD/q6_forecast_revenue_change.hive; }
+tpch6() { base $TPCHD/q6_forecast_revenue_change.hive $1; }
 
 ##################
 ###    main    ###

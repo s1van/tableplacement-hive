@@ -57,7 +57,6 @@ run_query() {
 	update-task-info $LOG $MAP $REDUCE;
 }
 
-
 ssb-load() { 
 	local SCALE=$1;
 	local LOAD_WHICH=$2;	#corresponding to templates (in reference to util/load.sh)
@@ -66,6 +65,16 @@ ssb-load() {
 	local HDFS_DATA_PATH=$5;
 
 	$WRAPD/load.sh $LOAD_WHICH $SCALE $HEADSET $HDFS_DATA_PATH > $OUTDIR/ssb_load.sql 2>&1;
+}
+
+tpch-load() { 
+	local SCALE=$1;
+	local LOAD_WHICH=$2;	#corresponding to templates (in reference to util/load.sh)
+	local HEADSET=$3;	#includes RGSIZE, HDFS_BUF_SIZE
+	local OUTDIR=$4;
+	local HDFS_DATA_PATH=$5;
+
+	$WRAPD/load.sh $LOAD_WHICH $SCALE $HEADSET $HDFS_DATA_PATH > $OUTDIR/tpch_load.sql 2>&1;
 }
 
 ssb-query() { 
@@ -79,6 +88,14 @@ ssb-query() {
 	run_query ssb1_3 $OUTDIR/ssb1_3_${TAG} $HEADSET
 }
 
+tpch-query() { 
+	local TAG=$1;	
+	local HEADSET=$2;	#includes RGSIZE, HDFS_BUF_SIZE
+	local OUTDIR=$3;
+
+	echo "Execute Queries ... [$TAG $HEADSET $OUTDIR]"
+	run_query tpch6 $OUTDIR/tpch6_${TAG} $HEADSET
+}
 
 batch() {
 	local RGSIZE=$1;
@@ -123,7 +140,7 @@ batch() {
 		for bufsize in $HDFS_BUF_SIZES; do
 			for osbuf in $OS_READAHEAD_SIZES; do
 				echo -e "\nSet HDFS Buffer Size ${bufsize}KB, OS Readahead Buffer ${osbuf}KB"
-				VALS="$(($bufsize * 1024)) $(($RGSIZE * 1024))";
+				VALS="$(($bufsize * 1024)) $(($RGSIZE * 1024)) $C_ON $C_TYPE";
 				sudo blockdev --setra $(($osbuf * 2)) $DEVICE;
 				
 				$UTILD/fillTemplate.py --vars="$VARS" --vals="$VALS" --template=$TPLD/head.template > $HEADSET;
@@ -136,6 +153,7 @@ batch() {
 	rm $HEADSET;
 }
 
+
 SSB-Batch() {
 	echo "SSB-Batch [$@]"
 	batch $1 $2 $3 $4 $5 $6 $7 $8 ssb-load ssb-query false BLOCK;
@@ -144,6 +162,11 @@ SSB-Batch() {
 SSB-Batch-DefaultBlockCpr() {
 	echo "SSB-Batch [$@]"
 	batch $1 $2 $3 $4 $5 $6 $7 $8 ssb-load ssb-query true BLOCK;
+}
+
+TPCH-Batch-DefaultBlockCpr() {
+	echo "$0 [$@]"
+	batch $1 $2 $3 $4 $5 $6 $7 $8 tpch-load tpch-query true BLOCK;
 }
 
 

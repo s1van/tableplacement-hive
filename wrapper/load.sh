@@ -57,7 +57,9 @@ TPCH_NBVALS="24346144 759863287 0 171952161 24135125 118984616 0 1409184";
 TPCH_HDFS_R=/tpch;
 TPCH_HIVE_R=/user/hive/warehouse/tpch;
 
+tpch1() { base1 $TPLD/tpch.load.sql.1.template $3 ${TPCH_HIVE_R}1 $1 "$TPCH_BVARS" "$TPCH_NBVALS" $2; }
 tpch2() { base1 $TPLD/tpch.load.sql.2.template $3 ${TPCH_HIVE_R}2 $1 "$TPCH_BVARS" "$TPCH_NBVALS" $2; }
+tpch3() { base1 $TPLD/tpch.load.sql.3.template $3 ${TPCH_HIVE_R}3 $1 "$TPCH_BVARS" "$TPCH_NBVALS" $2; }
 
 
 ##################

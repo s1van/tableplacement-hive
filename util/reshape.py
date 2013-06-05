@@ -84,7 +84,7 @@ def main():
 			if (line.find(keywords[i]) == -1):
 				continue
 			rowcur=rowcur+1
-			if ((rowcur - int(offsets[i])) % int(skips[i]) != 0):
+			if (rowcur - int(offsets[i]) < 0 or (rowcur - int(offsets[i])) % int(skips[i]) != 0):
 				continue				
 			elems = line.split(delimiters[i])
 			#print keywords[i],delimiters[i],columns[i]
