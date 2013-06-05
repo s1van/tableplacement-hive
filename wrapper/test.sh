@@ -128,8 +128,6 @@ batch() {
 	HEADSET=$(mktemp);
 	$UTILD/fillTemplate.py --vars="$VARS" --vals="$VALS" --template=$TPLD/head.template > $HEADSET;
 	cat $HEADSET
-	echo "Set OS Readahead Buffer 256 blocks"
-	sudo blockdev --setra 256 $DEVICE;
 	
 	echo "Start Testing ..."
 
@@ -141,7 +139,10 @@ batch() {
 			for osbuf in $OS_READAHEAD_SIZES; do
 				echo -e "\nSet HDFS Buffer Size ${bufsize}KB, OS Readahead Buffer ${osbuf}KB"
 				VALS="$(($bufsize * 1024)) $(($RGSIZE * 1024)) $C_ON $C_TYPE";
-				sudo blockdev --setra $(($osbuf * 2)) $DEVICE;
+				for host in $(cat $SLAVE); do
+					ssh -t -i $SSHKEY $host "sudo blockdev --setra $(($osbuf * 2)) $DEVICE" &
+				done
+				wait;
 				
 				$UTILD/fillTemplate.py --vars="$VARS" --vals="$VALS" --template=$TPLD/head.template > $HEADSET;
 				cat $HEADSET
