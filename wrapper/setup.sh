@@ -12,7 +12,8 @@ HDFS_BLK_SIZE=$1;	#MiB (256)
 MAP_JAVA_HEAP_SIZE=$2;	#MiB (512)
 REDUCE_JAVA_HEAP_SIZE=$3; #MiB (1024)
 C_MAP_NUM=$4;		#(2)[?]
-MR_OUT_DIR=$5;		#(/tmp/mapred_out)
+C_RED_NUM=$5;		#(1)[?]
+MR_OUT_DIR=$6;		#(/tmp/mapred_out)
 
 source $CONFD/site.conf;
 HBIN=$HADOOP_HOME/bin;
@@ -29,6 +30,7 @@ pdsh -R ssh -w ^${SLAVE} $XONF --file=$HCONF/hdfs-site.xml --key=dfs.block.size 
 pdsh -R ssh -w ^${SLAVE} $XONF --file=$HCONF/mapred-site.xml --key=mapred.map.child.java.opts --value="-Xmx${MAP_JAVA_HEAP_SIZE}m"
 pdsh -R ssh -w ^${SLAVE} $XONF --file=$HCONF/mapred-site.xml --key=mapred.reduce.child.java.opts --value="-Xmx${REDUCE_JAVA_HEAP_SIZE}m"
 pdsh -R ssh -w ^${SLAVE} $XONF --file=$HCONF/mapred-site.xml --key=mapred.tasktracker.map.tasks.maximum --value="${C_MAP_NUM}"
+pdsh -R ssh -w ^${SLAVE} $XONF --file=$HCONF/mapred-site.xml --key=mapred.tasktracker.reduce.tasks.maximum --value="${C_RED_NUM}"
 pdsh -R ssh -w ^${SLAVE} $XONF --file=$HCONF/mapred-site.xml --key=mapred.output.dir --value="${MR_OUT_DIR}"
 
 bash $HBIN/start-all.sh;
