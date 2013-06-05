@@ -27,7 +27,7 @@ stat1() {
 	local OUT=$2;
 	local COLNAMES=$3;
 	
-	$UTILD/stat.sh quatile-var $RES $COLNAMES > $OUT;
+	$UTILD/stat.sh quatile-var $RES $COLNAMES $OUT;
 }
 
 iostat1() {
@@ -38,12 +38,14 @@ iostat1() {
 
 	local RES=$(mktemp);
 	local TFILE=$(mktemp);
+	local CUM=$(mktemp);
 	cat $STAT| grep $HOST| grep $DEVICE| awk 'BEGIN{isStart=1} {if(isStart == 1) {r1=$6;w1=$7; isStart=0;} 
 							else {r2=$6;w2=$7; print r2-r1, w2-w1; isStart=1;} }' > $RES;
-	$UTILD/stat.sh quatile-var $RES "${HOST}_Read_KB,${HOST}_Write_KB"| paste $OUT - > $TFILE;
-	mv $TFILE $OUT;
+	$UTILD/stat.sh quatile-var $RES "${HOST}_Read_KB,${HOST}_Write_KB" $CUM
+	paste $OUT $CUM > $TFILE;
 
-	rm $RES;
+	mv $TFILE $OUT;
+	rm $RES $CUM;
 }
 
 list-stat() {
@@ -75,7 +77,7 @@ ssb() {
 	TMP1=$(mktemp);
 	TMP2=$(mktemp);
 
-	awk '{print $7,$8,$9,$3,$5,$6,$4}' $RRES> $TMP1;
+	awk 'BEGIN{OFS="\t"} {print $7,$8,$9,$3,$5,$6,$4}' $RRES> $TMP1;
 	COLNAMES='Cumlulative_CPU,HDFS_Read,HDFS_Write,Time_taken,#Mapper,#Reducer,#Row';
 	
 	echo "Refine $TMP1 to form $STAT ..."
@@ -108,9 +110,9 @@ batch-extract() {
         FORMAT="${F_CPU_TIME}\n${F_JOB_TIME}\n$(f_job 0)";
         echo -e "${FORMAT}" > $DIR/res.format;	
 
-	RESS="$(find $DIR -iname '*.log')";
-	for res in $RESS; do 
-		ssb $res $DIR/res.format;
+	LOGS="$(find $DIR -iname '*.log')";
+	for log in $LOGS; do 
+		ssb $log $DIR/res.format;
 	done
 }
 
@@ -121,7 +123,7 @@ ssb-list-stat() {
 
 	COLNAMES='CPU:s\tHread:B\tHwrite:B\tTotal:s\t#Mapper\t#Reducer\t#Row\tMapper:s\tReducer:s\tRR:KB\tRW:KB';
 	echo -e "Query\tHBuf:KB\tOBuf:KB\t$COLNAMES";
-	list-stat $DIR $KEYWORD| sed -e "s@${KEYWORD}@@g" | awk -F'_' '{print $1"."$2, substr($3,2), substr($4,2)}'| grep "$QUERY"; 
+	list-stat $DIR $KEYWORD| sed -e "s@\"${KEYWORD}\"@@g" | awk -F'_' 'BEGIN{OFS="\t"} {print $1"."$2, substr($3,2), substr($4,2)}'| grep "$QUERY"; 
 }
 
 batch-list-stat() {
