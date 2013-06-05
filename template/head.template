@@ -1,5 +1,6 @@
 set io.file.buffer.size=%%HDFS_BUF_SIZE%%;
 set hive.io.rcfile.record.buffer.size=%%RGSIZE%%;
 set hive.enforce.bucketing = true;
-SET hive.default.rcfile.serde = org.apache.hadoop.hive.serde2.columnar.LazyBinaryColumnarSerDe;
 
+SET hive.exec.compress.output=%%COMPRESS_ON%%; 
+SET io.seqfile.compression.type=%%COMPRESS_TYPE%%;

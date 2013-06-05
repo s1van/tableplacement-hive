@@ -91,6 +91,8 @@ batch() {
 	local HDFS_DATA_PATH=$8;
 	local F_LOAD=$9;
 	local F_QUERY=${10};
+	local C_ON=${11};
+	local C_TYPE=${12};
 	
 	mkdir -p $OUTDIR;
 
@@ -104,8 +106,8 @@ batch() {
 	echo $@ >> $OUTDIR/README;
 
 	echo "Set HDFS Buffer Size, Row Group Size ${RGSIZE}MiB for Loading"
-	VARS="HDFS_BUF_SIZE RGSIZE";
-	VALS="524288 $(($RGSIZE * 1024 * 1024))";
+	VARS="HDFS_BUF_SIZE RGSIZE COMPRESS_ON COMPRESS_TYPE";
+	VALS="524288 $(($RGSIZE * 1024 * 1024)) $C_ON $C_TYPE";
 	HEADSET=$(mktemp);
 	$UTILD/fillTemplate.py --vars="$VARS" --vals="$VALS" --template=$TPLD/head.template > $HEADSET;
 	cat $HEADSET
@@ -136,7 +138,12 @@ batch() {
 
 SSB-Batch() {
 	echo "SSB-Batch [$@]"
-	batch $1 $2 $3 $4 $5 $6 $7 $8 ssb-load ssb-query;
+	batch $1 $2 $3 $4 $5 $6 $7 $8 ssb-load ssb-query false BLOCK;
+}
+
+SSB-Batch-DefaultBlockCpr() {
+	echo "SSB-Batch [$@]"
+	batch $1 $2 $3 $4 $5 $6 $7 $8 ssb-load ssb-query true BLOCK;
 }
 
 
