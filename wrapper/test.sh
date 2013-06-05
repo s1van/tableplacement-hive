@@ -174,5 +174,27 @@ TPCH-Batch-DefaultBlockCpr() {
 ##################
 ###    main    ###
 ##################
+usage()
+{
+        echo "Usage: `echo $0| awk -F/ '{print $NF}'`  [-option]"
+        echo "[arguments]:"
+        echo "  TEST: SSB-Batch, SSB-Batch-DefaultBlockCpr, TPCH-Batch-DefaultBlockCpr"
+        echo "  RGSIZE"
+        echo "  LOAD_WHICH: ssb1, ssb2, ssb3, tpch1, tpch2, tpch3 (in reference to templates)"
+        echo "  HDFS_BUFFER_SIZE"
+        echo "  OS_READ_AHEAD_BUFFER_SIZE"
+        echo "  REPEAT_TIMES"
+        echo "  SCALE_FACTOR"
+        echo "  LOGDIR"
+        echo "  HDFS_DATA_PATH"
+        echo
+}
+
+if [ $# -lt 9 ]
+then
+        usage
+        exit
+fi
+
 $@;
 

@@ -26,6 +26,7 @@ tpch() {
 		$HEXEC fs -mkdir $HDFS_PATH/$TNAME;
 		$GEN -s $SCALE -t $TSYM -e $DBGEN -h $HEXEC -p $HDFS_PATH/$TNAME -f $HLIST &
 	done
+	wait;
 }
 
 ssb() {
@@ -42,15 +43,56 @@ ssb() {
 		$HEXEC fs -mkdir $HDFS_PATH/$TNAME;
 		$GEN -s $SCALE -t $TSYM -e $DBGEN -h $HEXEC -p $HDFS_PATH/$TNAME -f $HLIST &
 	done
+	wait;
 }
 
 ##################
 ###    main    ###
 ##################
-FUNC=$1;
-SCALE=$2;
-HPATH=$3;
+usage()
+{
+        echo "Usage: `echo $0| awk -F/ '{print $NF}'`  [-option]"
+        echo "[description]:"
+        echo "  execute dbgen in parallel and load the date into HDFS"
+        echo "[option]:"
+        echo "  -s  scale (>1)"
+        echo "  -p  hdfs_path"
+        echo "  -f  benchmark (tpch, ssb)"
+        echo ""
+        echo
+}
+
+if [ $# -lt 6 ]
+then
+        usage
+        exit
+fi
+
+while getopts "s:p:f:" OPTION
+do
+        case $OPTION in
+                s)
+                        SCALE=$OPTARG;
+                        ;;
+                p)
+                        HPATH=$OPTARG;
+                        ;;
+                f)
+                        FUNC=$OPTARG;
+                        ;;
+                ?)
+                        echo "unknown arguments"
+                        usage
+                        exit
+                        ;;
+        esac
+done
+
+if [ $SCALE -le 1 ]
+then
+	usage;
+	exit;
+fi
 
 echo $@;
 $FUNC $SCALE $HPATH;
-wait;
