@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 from xml.dom.minidom import parse
+from xml.dom.minidom import parseString
 import getopt
 import sys
 
@@ -44,15 +45,12 @@ def main():
 			sys.exit()
 
 	isFound = False;
-	anyNode = False;
 	dom = parse(path);
 	conf = dom.childNodes[-1];
 	properties=conf.childNodes[1::2];
 	for property in properties:
 		if property.nodeType == property.COMMENT_NODE:
 			continue
-		else:
-			anyNode = property
 		nameElem = property.getElementsByTagName("name")[0]
 		name = nameElem.childNodes[0]
 		if name.data == key:
@@ -66,7 +64,8 @@ def main():
 			break;
 			
 	#if ~isFound	and anyNode and appendEnabled:
-	if (isFound	== False) and anyNode:
+	if (isFound == False) :
+		anyNode = parseString('<property>\n\t<name>mapred.output.dir</name>\n\t<value>/tmp/mapred_out</value>\n</property>').childNodes[-1];
 		newNode = anyNode.cloneNode(anyNode)
 		newNode.getElementsByTagName("name")[0].childNodes[0].data = unicode(key)
 		newNode.getElementsByTagName("value")[0].childNodes[0].data = unicode(val)
