@@ -36,12 +36,13 @@ ssb() {
 	DBGEN=$SSB_DBGEN_HOME;
 	
 	$HEXEC fs -mkdir $HDFS_PATH;
-	for t  in $(echo "customer,c part,p supplier,s date,d lineorder,l"); do
+	for t  in $(echo "customer,c,${SCALE} part,p,1 supplier,s,${SCALE} date,d,1 lineorder,l,${SCALE}"); do
 		TNAME=$(echo $t| awk -F',' '{print $1}');
 		TSYM=$(echo $t| awk -F',' '{print $2}');
+		SF=$(echo $t| awk -F',' '{print $3}');
 		
 		$HEXEC fs -mkdir $HDFS_PATH/$TNAME;
-		$GEN -s $SCALE -t $TSYM -e $DBGEN -h $HEXEC -p $HDFS_PATH/$TNAME -f $HLIST &
+		$GEN -s $SF -t $TSYM -e $DBGEN -h $HEXEC -p $HDFS_PATH/$TNAME -f $HLIST &
 	done
 	wait;
 }

@@ -63,7 +63,7 @@ rdbgen() {
 
 	echo "Copy parts $(echo $PARTS) of table $TABLE to hdfs://$HDFS_PATH from $HOST ..."
 	ssh $HOST eval "ls $DBGEN| grep ${TNAME}.tbl| xargs -I % $HADOOP fs -copyFromLocal $DBGEN/% $HDFS_PATH"
-
+	ssh $HOST eval "ls $DBGEN| grep ${TNAME}.tbl| xargs -I % rm $DBGEN/%"
 }
 
 HOST_NUM=$(echo $HOSTLIST| wc -w);
