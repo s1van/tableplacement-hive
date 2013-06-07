@@ -62,21 +62,35 @@ do
 done
 
 source $CONFD/site.conf;
-HBIN=$HADOOP_HOME/bin;
-HCONF=$HADOOP_HOME/conf;
-SLAVE=$HCONF/slaves;
+HADOOP_BIN=$HADOOP_HOME/bin;
+HADOOP_CONF=$HADOOP_HOME/conf;
+HIVE_CONF=$HIVE_HOME/conf;
+SLAVE=$HADOOP_CONF/slaves;
 
-HADOOP=$HBIN/hadoop;
+MHOST="$(cat $HADOOP_CONF/masters)";
+
+HADOOP=$HADOOP_BIN/hadoop;
 XONF=$UTILD/orc-xonf.py;
 
-bash $HBIN/stop-all.sh;
+bash $HADOOP_BIN/stop-all.sh;
 echo "Setup HDFS Parameters";
-pdsh -R ssh -w ^${SLAVE} $XONF --file=$HCONF/hdfs-site.xml --key=dfs.block.size --value=$(($HDFS_BLK_SIZE * 1024 * 1024 )) 
-pdsh -R ssh -w ^${SLAVE} $XONF --file=$HCONF/mapred-site.xml --key=mapred.map.child.java.opts --value="-Xmx${MAP_JAVA_HEAP_SIZE}m"
-pdsh -R ssh -w ^${SLAVE} $XONF --file=$HCONF/mapred-site.xml --key=mapred.reduce.child.java.opts --value="-Xmx${REDUCE_JAVA_HEAP_SIZE}m"
-pdsh -R ssh -w ^${SLAVE} $XONF --file=$HCONF/mapred-site.xml --key=mapred.tasktracker.map.tasks.maximum --value="${C_MAP_NUM}"
-pdsh -R ssh -w ^${SLAVE} $XONF --file=$HCONF/mapred-site.xml --key=mapred.tasktracker.reduce.tasks.maximum --value="${C_RED_NUM}"
-pdsh -R ssh -w ^${SLAVE} $XONF --file=$HCONF/mapred-site.xml --key=mapred.output.dir --value="${MR_OUT_DIR}"
+pdsh -R ssh -w ^${SLAVE} $XONF --file=$HADOOP_CONF/core-site.xml --key=hadoop.tmp.dir --value=/tmp/hadoop_tmp
+pdsh -R ssh -w ^${SLAVE} $XONF --file=$HADOOP_CONF/core-site.xml --key=fs.default.name --value=hdfs://${MHOST}:9004
 
-bash $HBIN/start-all.sh;
+pdsh -R ssh -w ^${SLAVE} $XONF --file=$HADOOP_CONF/hdfs-site.xml --key=dfs.replication --value=3
+pdsh -R ssh -w ^${SLAVE} $XONF --file=$HADOOP_CONF/hdfs-site.xml --key=dfs.block.size --value=$(($HDFS_BLK_SIZE * 1024 * 1024 )) 
+
+pdsh -R ssh -w ^${SLAVE} $XONF --file=$HADOOP_CONF/mapred-site.xml --key=mapred.job.tracker --value=${MHOST}:9005
+pdsh -R ssh -w ^${SLAVE} $XONF --file=$HADOOP_CONF/mapred-site.xml --key=mapred.map.child.java.opts --value="-Xmx${MAP_JAVA_HEAP_SIZE}m"
+pdsh -R ssh -w ^${SLAVE} $XONF --file=$HADOOP_CONF/mapred-site.xml --key=mapred.reduce.child.java.opts --value="-Xmx${REDUCE_JAVA_HEAP_SIZE}m"
+pdsh -R ssh -w ^${SLAVE} $XONF --file=$HADOOP_CONF/mapred-site.xml --key=mapred.tasktracker.map.tasks.maximum --value="${C_MAP_NUM}"
+pdsh -R ssh -w ^${SLAVE} $XONF --file=$HADOOP_CONF/mapred-site.xml --key=mapred.tasktracker.reduce.tasks.maximum --value="${C_RED_NUM}"
+pdsh -R ssh -w ^${SLAVE} $XONF --file=$HADOOP_CONF/mapred-site.xml --key=mapred.output.dir --value="${MR_OUT_DIR}"
+
+echo "Setup Hive Parameters";
+pdsh -R ssh -w ^${SLAVE} $XONF --file=$HIVE_CONF/hive-site.xml --key=javax.jdo.option.ConnectionURL --value='"jdbc:derby:;databaseName=metastore_db;create=true"'
+pdsh -R ssh -w ^${SLAVE} $XONF --file=$HIVE_CONF/hive-site.xml --key=hive.stats.dbconnectionstring --value='"jdbc:derby:;databaseName=TempStatsStore;create=true"'
+
+
+bash $HADOOP_BIN/start-all.sh;
 $HADOOP dfsadmin -safemode wait;
