@@ -94,7 +94,7 @@ tpch-query() {
 	local OUTDIR=$3;
 
 	echo "Execute Queries ... [$TAG $HEADSET $OUTDIR]"
-	run_query tpch6 $OUTDIR/tpch6_${TAG} $HEADSET
+	run_query tpch_q6 $OUTDIR/tpch_q6_${TAG} $HEADSET
 }
 
 batch() {
@@ -156,12 +156,17 @@ batch() {
 
 
 SSB-Batch() {
-	echo "SSB-Batch [$@]"
+	echo "$0 [$@]"
 	batch $1 $2 $3 $4 $5 $6 $7 $8 ssb-load ssb-query false BLOCK;
 }
 
+TPCH-Batch() {
+	echo "$0 [$@]"
+	batch $1 $2 $3 $4 $5 $6 $7 $8 tpch-load tpch-query false BLOCK;
+}
+
 SSB-Batch-DefaultBlockCpr() {
-	echo "SSB-Batch [$@]"
+	echo "$0 [$@]"
 	batch $1 $2 $3 $4 $5 $6 $7 $8 ssb-load ssb-query true BLOCK;
 }
 
