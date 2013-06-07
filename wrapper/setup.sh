@@ -19,6 +19,7 @@ usage()
         echo "  -h  MAP_JAVA_HEAP_SIZE,REDUCE_JAVA_HEAP_SIZE"
         echo "  -c  MAP_CONCURRENCY,REDUCE_CONCURRENCY"
         echo "  -o  MAPREDUCE_OUT_DIR"
+        echo "  -i  (Perform initialization if set)"
         echo
 }
 
@@ -35,8 +36,9 @@ REDUCE_JAVA_HEAP_SIZE=1024;
 C_MAP_NUM=2;
 C_RED_NUM=1;
 MR_OUT_DIR=/tmp/mapred_out;
+INIT=false;
 
-while getopts "b:h:c:o:" OPTION
+while getopts "b:h:c:o:i" OPTION
 do
         case $OPTION in
                 b)
@@ -53,6 +55,9 @@ do
                 o)
 			MR_OUT_DIR=$OPTARG;
                         ;;
+                i)
+			INIT=true;
+                        ;;
                 ?)
                         echo "unknown arguments"
                         usage
@@ -68,13 +73,14 @@ HIVE_CONF=$HIVE_HOME/conf;
 SLAVE=$HADOOP_CONF/slaves;
 
 MHOST="$(cat $HADOOP_CONF/masters)";
+HADOOP_TMP=/tmp/hadoop_tmp;
 
 HADOOP=$HADOOP_BIN/hadoop;
 XONF=$UTILD/orc-xonf.py;
 
 bash $HADOOP_BIN/stop-all.sh;
 echo "Setup HDFS Parameters";
-pdsh -R ssh -w ^${SLAVE} $XONF --file=$HADOOP_CONF/core-site.xml --key=hadoop.tmp.dir --value=/tmp/hadoop_tmp
+pdsh -R ssh -w ^${SLAVE} $XONF --file=$HADOOP_CONF/core-site.xml --key=hadoop.tmp.dir --value=$HADOOP_TMP
 pdsh -R ssh -w ^${SLAVE} $XONF --file=$HADOOP_CONF/core-site.xml --key=fs.default.name --value=hdfs://${MHOST}:9004
 
 pdsh -R ssh -w ^${SLAVE} $XONF --file=$HADOOP_CONF/hdfs-site.xml --key=dfs.replication --value=3
@@ -86,6 +92,13 @@ pdsh -R ssh -w ^${SLAVE} $XONF --file=$HADOOP_CONF/mapred-site.xml --key=mapred.
 pdsh -R ssh -w ^${SLAVE} $XONF --file=$HADOOP_CONF/mapred-site.xml --key=mapred.tasktracker.map.tasks.maximum --value="${C_MAP_NUM}"
 pdsh -R ssh -w ^${SLAVE} $XONF --file=$HADOOP_CONF/mapred-site.xml --key=mapred.tasktracker.reduce.tasks.maximum --value="${C_RED_NUM}"
 pdsh -R ssh -w ^${SLAVE} $XONF --file=$HADOOP_CONF/mapred-site.xml --key=mapred.output.dir --value="${MR_OUT_DIR}"
+
+if [ "$INIT" == "true" ]; then
+	echo "Initialize Hadoop Namenode and hive-site.xml";
+	rm -rf $HADOOP_TMP;
+	$HADOOP_BIN/hadoop namenode -format -force;
+	pdsh -R ssh -w ^${SLAVE} eval "echo -e '\<?xml version=\\\"1.0\\\" ?\>\<configuration\>\\\n\</configuration\>' > $HIVE_CONF/hive-site.xml";
+fi
 
 echo "Setup Hive Parameters";
 pdsh -R ssh -w ^${SLAVE} $XONF --file=$HIVE_CONF/hive-site.xml --key=javax.jdo.option.ConnectionURL --value='"jdbc:derby:;databaseName=metastore_db;create=true"'
