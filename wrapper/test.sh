@@ -157,22 +157,22 @@ batch() {
 
 SSB-Batch() {
 	echo "$0 [$@]"
-	batch $1 $2 $3 $4 $5 $6 $7 $8 ssb-load ssb-query false BLOCK;
+	batch $@ ssb-load ssb-query false BLOCK;
 }
 
 TPCH-Batch() {
 	echo "$0 [$@]"
-	batch $1 $2 $3 $4 $5 $6 $7 $8 tpch-load tpch-query false BLOCK;
+	batch $@ tpch-load tpch-query false BLOCK;
 }
 
 SSB-Batch-DefaultBlockCpr() {
 	echo "$0 [$@]"
-	batch $1 $2 $3 $4 $5 $6 $7 $8 ssb-load ssb-query true BLOCK;
+	batch $@ ssb-load ssb-query true BLOCK;
 }
 
 TPCH-Batch-DefaultBlockCpr() {
 	echo "$0 [$@]"
-	batch $1 $2 $3 $4 $5 $6 $7 $8 tpch-load tpch-query true BLOCK;
+	batch $@ tpch-load tpch-query true BLOCK;
 }
 
 
