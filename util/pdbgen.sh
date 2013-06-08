@@ -61,6 +61,7 @@ rdbgen() {
 		ssh $HOST eval "cd $DBGEN && $DBGEN/dbgen -f -s $SCALE -T $TABLE -C $SCALE -S $part";
 	done
 
+	sleep 1;
 	echo "Copy parts $(echo $PARTS) of table $TABLE to hdfs://$HDFS_PATH from $HOST ..."
 	ssh $HOST eval "ls $DBGEN| grep ${TNAME}.tbl| xargs -I % $HADOOP fs -copyFromLocal $DBGEN/% $HDFS_PATH"
 	ssh $HOST eval "ls $DBGEN| grep ${TNAME}.tbl| xargs -I % rm $DBGEN/%"

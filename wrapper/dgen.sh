@@ -17,6 +17,7 @@ tpch() {
 	local HDFS_PATH=$2;
 
 	DBGEN=$TPCH_DBGEN_HOME;
+	cd $DBGEN && make;
 	
 	$HEXEC fs -mkdir $HDFS_PATH;
 	for t  in $(echo "customer,c supplier,s nation,n region,r orders,O lineitem,L part,P partsupp,S"); do
@@ -34,12 +35,13 @@ ssb() {
 	local HDFS_PATH=$2;
 
 	DBGEN=$SSB_DBGEN_HOME;
+	cd $DBGEN && make;
 	
 	$HEXEC fs -mkdir $HDFS_PATH;
 	for t  in $(echo "customer,c,${SCALE} part,p,1 supplier,s,${SCALE} date,d,1 lineorder,l,${SCALE}"); do
 		TNAME=$(echo $t| awk -F',' '{print $1}');
 		TSYM=$(echo $t| awk -F',' '{print $2}');
-		SF=$(echo $t| awk -F',' '{print $3}');
+		SF=$(echo $t| awk -F',' '{print $3}');	#part and date cannot be generated incrementally
 		
 		$HEXEC fs -mkdir $HDFS_PATH/$TNAME;
 		$GEN -s $SF -t $TSYM -e $DBGEN -h $HEXEC -p $HDFS_PATH/$TNAME -f $HLIST &

@@ -1,0 +1,5 @@
+*.o
+*.tbl
+*.tbl.[0-9]*
+qgen
+dbgen
