@@ -41,5 +41,5 @@ do
 done
 
 for ip in $(cat $EFILE); do
-	ssh -i $CERT ${USER}@${ip} ifconfig 2>&1|grep Bcast| sed 's/inet addr://g'| awk '{print $1}'| sed 's/\./-/g'| awk '{print "ip-"$1".ec2.internal"}';
+	ssh -o "StrictHostKeyChecking no" -i $CERT ${USER}@${ip} ifconfig 2>&1|grep Bcast| sed 's/inet addr://g'| awk '{print $1}'| sed 's/\./-/g'| awk '{print "ip-"$1".ec2.internal"}';
 done
