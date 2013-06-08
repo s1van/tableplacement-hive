@@ -19,6 +19,7 @@ usage()
         echo "  -h  MAP_JAVA_HEAP_SIZE,REDUCE_JAVA_HEAP_SIZE"
         echo "  -c  MAP_CONCURRENCY,REDUCE_CONCURRENCY"
         echo "  -o  MAPREDUCE_OUT_DIR"
+        echo "  -r  #REPLICA"
         echo "  -i  (Perform initialization if set)"
         echo
 }
@@ -37,8 +38,9 @@ C_MAP_NUM=2;
 C_RED_NUM=1;
 MR_OUT_DIR=/tmp/mapred_out;
 INIT=false;
+REPLICA=1;
 
-while getopts "b:h:c:o:i" OPTION
+while getopts "b:h:c:o:ir:" OPTION
 do
         case $OPTION in
                 b)
@@ -57,6 +59,9 @@ do
                         ;;
                 i)
 			INIT=true;
+                        ;;
+                r)
+			REPLICA=$OPTARG;
                         ;;
                 ?)
                         echo "unknown arguments"
@@ -83,7 +88,7 @@ echo "Setup HDFS Parameters";
 pdsh -R ssh -w ^${SLAVE} $XONF --file=$HADOOP_CONF/core-site.xml --key=hadoop.tmp.dir --value=$HADOOP_TMP
 pdsh -R ssh -w ^${SLAVE} $XONF --file=$HADOOP_CONF/core-site.xml --key=fs.default.name --value=hdfs://${MHOST}:9004
 
-pdsh -R ssh -w ^${SLAVE} $XONF --file=$HADOOP_CONF/hdfs-site.xml --key=dfs.replication --value=3
+pdsh -R ssh -w ^${SLAVE} $XONF --file=$HADOOP_CONF/hdfs-site.xml --key=dfs.replication --value=$REPLICA
 pdsh -R ssh -w ^${SLAVE} $XONF --file=$HADOOP_CONF/hdfs-site.xml --key=dfs.block.size --value=$(($HDFS_BLK_SIZE * 1024 * 1024 )) 
 
 pdsh -R ssh -w ^${SLAVE} $XONF --file=$HADOOP_CONF/mapred-site.xml --key=mapred.job.tracker --value=${MHOST}:9005
