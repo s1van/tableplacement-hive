@@ -46,7 +46,7 @@ base1() {
 
 SSB_BVARS="C_B_NUM D_B_NUM L_B_NUM P_B_NUM S_B_NUM";
 SSB_NBVALS="2837046 0 594313001 17139259 166676"; #Set 0 for fixed size table
-SSB_CG_NBVALS="2837046 0 694313001 17139259 166676"; #Set 0 for fixed size table
+SSB_CG_NBVALS="2837046 0 624313001 17139259 166676"; #Set 0 for fixed size table
 SSB_HDFS_R=/ssb;
 SSB_HIVE_R=/user/hive/warehouse/ssb;
 
