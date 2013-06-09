@@ -9,13 +9,12 @@ SSBD=$CDIR/ssb;
 
 source $CONFD/site.conf;
 DEV=$(echo $MONDEV| sed 's/dev//g'| sed 's/\///g');
-HOSTLIST="$(cat $HADOOP_HOME/conf/slaves)";
+HOSTLIST="$(cat $PDSH_IPLIST)";
 
 ###########
 ##Formats##
 #########
 F_CPU_TIME="Total MapReduce CPU Time Spent\t \t1\t0\t6\t8";
-F_JOB_TIME="Time taken:\t \t1\t0\t3";
 f_job() {
         local NUM=$1;
         echo "Job ${NUM}:\t \t1\t0\t4\t7\t12\t18\t21"
@@ -74,8 +73,8 @@ extract() {
 	STAT=${BASE}.stat;
 	MAP=${BASE}.mapper;
 	REDUCE=${BASE}.reducer;
-	TMP1=$(mktemp);
-	TMP2=$(mktemp);
+	local TMP1=$(mktemp);
+	local TMP2=$(mktemp);
 
 	awk 'BEGIN{OFS="\t"} {print $7,$8,$9,$3,$5,$6,$4}' $RRES> $TMP1;
 	COLNAMES='Cumlulative_CPU,HDFS_Read,HDFS_Write,Time_taken,#Mapper,#Reducer,#Row';
@@ -106,6 +105,8 @@ extract() {
 ssb-batch-extract() {
 	local DIR=$1;
 
+	local F_JOB_TIME="Time taken:\t \t1\t0\t3\t6";
+
 	echo "Generate reshape.py format ..."
         FORMAT="${F_CPU_TIME}\n${F_JOB_TIME}\n$(f_job 0)";
         echo -e "${FORMAT}" > $DIR/res.format;	
@@ -119,8 +120,7 @@ ssb-batch-extract() {
 tpch-batch-extract() {
 	local DIR=$1;
 
-	local F_JOB_TIME="Time taken:\t \t3\t3\t3";
-	local F_JOB_ROW="Rows loaded to\t \t1\t0\t1";
+	local F_JOB_TIME="Time taken:\t \t3\t3\t3\t3"; #last entry is a dummy
 
 	echo "Generate reshape.py format ..."
         FORMAT="${F_CPU_TIME}\n${F_JOB_TIME}\n${F_JOB_ROW}\n$(f_job 0)";
