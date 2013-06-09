@@ -8,7 +8,7 @@ TPCHD=$CDIR/tpch;
 SSBD=$CDIR/ssb;
 
 source $CONFD/site.conf;
-DEV=$(echo $DEVICE| sed 's/dev//g'| sed 's/\///g');
+DEV=$(echo $MONDEV| sed 's/dev//g'| sed 's/\///g');
 HOSTLIST="$(cat $HADOOP_HOME/conf/slaves)";
 
 ###########

@@ -10,7 +10,6 @@ SSBD=$CDIR/ssb;
 
 source $CONFD/site.conf;
 SLAVE=$HADOOP_HOME/conf/slaves;
-DEV=$(echo $DEVICE| sed 's/dev//g'| sed 's/\///g');
 
 update-task-info() {
 	local LOG=$1;
@@ -47,11 +46,11 @@ run_query() {
         $UTILD/cache-cleanup.sh -g ${SLAVE};
 
 	echo "Execute Query $SQL"
-	pdsh -R ssh -w ^${SLAVE} iostat -d -t -k $DEVICE >> $IOS;
+	pdsh -R ssh -w ^${SLAVE} iostat -d -t -k $MONDEV >> $IOS;
 	$WRAPD/run.sh $SQL $HEADSET >> $LOG 2>&1;
 	
 	echo "Collect iostat info to $IOS"
-	pdsh -R ssh -w ^${SLAVE} iostat -d -t -k $DEVICE >> $IOS;
+	pdsh -R ssh -w ^${SLAVE} iostat -d -t -k $MONDEV >> $IOS;
 
 	echo "Update Mapper info in $MAP"
 	update-task-info $LOG $MAP $REDUCE;
