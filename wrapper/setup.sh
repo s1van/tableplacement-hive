@@ -103,6 +103,13 @@ if [ "$INIT" == "true" ]; then
 	rm -rf $HADOOP_TMP;
 	$HADOOP_BIN/hadoop namenode -format -force;
 	pdsh -R ssh -w ^${SLAVE} eval "echo -e '\<?xml version=\\\"1.0\\\" ?\>\<configuration\>\\\n\</configuration\>' > $HIVE_CONF/hive-site.xml";
+
+	for host in $(cat $SLAVE); do
+		scp $HADOOP_CONF/masters ${host}:${HADOOP_CONF}/masters &
+		scp $HADOOP_CONF/slaves ${host}:${HADOOP_CONF}/slaves &
+	done
+	sleep 1;
+	wait;
 fi
 
 echo "Setup Hive Parameters";

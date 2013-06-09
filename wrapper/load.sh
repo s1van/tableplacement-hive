@@ -8,7 +8,7 @@ TPCHD=$CDIR/tpch;
 SSBD=$CDIR/ssb;
 
 source $CONFD/site.conf;
-HDFS_BLK_SIZE=$($UTILD/orc-xonf.py --file=$HDFS_HOME/conf/hdfs-site.xml --key=dfs.block.size --print)
+HDFS_BLK_SIZE=$($UTILD/orc-xonf.py --file=$HADOOP_HOME/conf/hdfs-site.xml --key=dfs.block.size --print)
 
 base1() {
 	local TEMPLATE=$1;

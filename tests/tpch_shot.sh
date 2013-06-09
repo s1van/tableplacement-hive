@@ -12,8 +12,8 @@ BUFS="128";	# HDFS buffer size (KB)
 OSRS="256";	# os read ahead buffer size (KB)
 
 REP=1;
-SCALE=1;
-HDFS_DATA_PATH=/tpch_s1;
+SCALE=2;
+HDFS_DATA_PATH=/tpch_s2;
 for rg in $RGS; do
 	$WRAPD/test.sh TPCH-Batch-DefaultBlockCpr $rg tpch2 "$BUFS" "$OSRS" $REP $SCALE "$DIR/tpch2-RG${rg}" $HDFS_DATA_PATH;
 done
