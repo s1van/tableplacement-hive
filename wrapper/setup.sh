@@ -40,6 +40,15 @@ MR_OUT_DIR=/tmp/mapred_out;
 INIT=false;
 REPLICA=1;
 
+INMEM_SIZE=200;
+IO_SORT_MB=200;
+NN_HCOUNT=30;
+MR_PCOPY=10;
+IO_SORT_FACTOR=50;
+MR_JT_HCOUNT=20;
+TT_TNUM=20;
+
+
 while getopts "b:h:c:o:ir:" OPTION
 do
         case $OPTION in
@@ -71,6 +80,9 @@ do
         esac
 done
 
+REDUCE_JAVA_HEAP_SIZE=$(($REDUCE_JAVA_HEAP_SIZE + $INMEM_SIZE));
+MAP_JAVA_HEAP_SIZE=$(($MAP_JAVA_HEAP_SIZE + $IO_SORT_MB));
+
 source $CONFD/site.conf;
 HADOOP_BIN=$HADOOP_HOME/bin;
 HADOOP_CONF=$HADOOP_HOME/conf;
@@ -91,9 +103,13 @@ bash $HADOOP_BIN/stop-all.sh;
 echo "Setup HDFS Parameters";
 pdsh -R ssh -w ^${ALLHOSTS} $XONF --file=$HADOOP_CONF/core-site.xml --key=hadoop.tmp.dir --value=$HADOOP_TMP
 pdsh -R ssh -w ^${ALLHOSTS} $XONF --file=$HADOOP_CONF/core-site.xml --key=fs.default.name --value=hdfs://${MHOST}:9004
+pdsh -R ssh -w ^${ALLHOSTS} $XONF --file=$HADOOP_CONF/core-site.xml --key=fs.inmemory.size.mb --value=$INMEM_SIZE
+pdsh -R ssh -w ^${ALLHOSTS} $XONF --file=$HADOOP_CONF/core-site.xml --key=io.sort.factor --value=$IO_SORT_FACTOR
+pdsh -R ssh -w ^${ALLHOSTS} $XONF --file=$HADOOP_CONF/core-site.xml --key=io.sort.mb --value=$IO_SORT_MB
 
 pdsh -R ssh -w ^${ALLHOSTS} $XONF --file=$HADOOP_CONF/hdfs-site.xml --key=dfs.replication --value=$REPLICA
 pdsh -R ssh -w ^${ALLHOSTS} $XONF --file=$HADOOP_CONF/hdfs-site.xml --key=dfs.block.size --value=$(($HDFS_BLK_SIZE * 1024 * 1024 )) 
+pdsh -R ssh -w ^${ALLHOSTS} $XONF --file=$HADOOP_CONF/hdfs-site.xml --key=dfs.namenode.handler.count --value=$NN_HCOUNT
 
 pdsh -R ssh -w ^${ALLHOSTS} $XONF --file=$HADOOP_CONF/mapred-site.xml --key=mapred.job.tracker --value=${MHOST}:9005
 pdsh -R ssh -w ^${ALLHOSTS} $XONF --file=$HADOOP_CONF/mapred-site.xml --key=mapred.map.child.java.opts --value="-Xmx${MAP_JAVA_HEAP_SIZE}m"
@@ -101,6 +117,10 @@ pdsh -R ssh -w ^${ALLHOSTS} $XONF --file=$HADOOP_CONF/mapred-site.xml --key=mapr
 pdsh -R ssh -w ^${ALLHOSTS} $XONF --file=$HADOOP_CONF/mapred-site.xml --key=mapred.tasktracker.map.tasks.maximum --value="${C_MAP_NUM}"
 pdsh -R ssh -w ^${ALLHOSTS} $XONF --file=$HADOOP_CONF/mapred-site.xml --key=mapred.tasktracker.reduce.tasks.maximum --value="${C_RED_NUM}"
 pdsh -R ssh -w ^${ALLHOSTS} $XONF --file=$HADOOP_CONF/mapred-site.xml --key=mapred.output.dir --value="${MR_OUT_DIR}"
+pdsh -R ssh -w ^${ALLHOSTS} $XONF --file=$HADOOP_CONF/mapred-site.xml --key=mapred.reduce.parallel.copies --value=$MR_PCOPY
+pdsh -R ssh -w ^${ALLHOSTS} $XONF --file=$HADOOP_CONF/mapred-site.xml --key=mapred.job.tracker.handler.count --value=$MR_JT_HCOUNT
+pdsh -R ssh -w ^${ALLHOSTS} $XONF --file=$HADOOP_CONF/mapred-site.xml --key=tasktracker.http.threads --value=$TT_TNUM
+pdsh -R ssh -w ^${ALLHOSTS} $XONF --file=$HADOOP_CONF/mapred-site.xml --key=mapred.map.tasks.speculative.execution --value=false
 
 if [ "$INIT" == "true" ]; then
 	echo "Initialize Hadoop Namenode and hive-site.xml";
