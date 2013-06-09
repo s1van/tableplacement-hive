@@ -17,7 +17,7 @@ tpch() {
 	local HDFS_PATH=$2;
 
 	DBGEN=$TPCH_DBGEN_HOME;
-	pdsh -R ssh -w ^${HLIST} eval "cd $DBGEN && make";
+	pdsh -R ssh -w ^${HLIST} eval "cd $DBGEN && make >/dev/null 2>&1";
 	
 	$HEXEC fs -mkdir $HDFS_PATH;
 	for t  in $(echo "customer,c supplier,s nation,n region,r orders,O lineitem,L part,P partsupp,S"); do
@@ -35,7 +35,7 @@ ssb() {
 	local HDFS_PATH=$2;
 
 	DBGEN=$SSB_DBGEN_HOME;
-	pdsh -R ssh -w ^${HLIST} eval "cd $DBGEN && make";
+	pdsh -R ssh -w ^${HLIST} eval "cd $DBGEN && make >/dev/null 2>&1";
 	
 	$HEXEC fs -mkdir $HDFS_PATH;
 	for t  in $(echo "customer,c,${SCALE} part,p,1 supplier,s,${SCALE} date,d,1 lineorder,l,${SCALE}"); do
