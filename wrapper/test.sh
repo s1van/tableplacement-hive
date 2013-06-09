@@ -139,7 +139,7 @@ batch() {
 				echo -e "\nSet HDFS Buffer Size ${bufsize}KB, OS Readahead Buffer ${osbuf}KB"
 				VALS="$(($bufsize * 1024)) $(($RGSIZE * 1024)) $C_ON $C_TYPE";
 				for host in $(cat $SLAVE); do
-					ssh -t -i $SSHKEY $host "sudo blockdev --setra $(($osbuf * 2)) $DEVICE" &
+					ssh -i $SSHKEY $host "sudo blockdev --setra $(($osbuf * 2)) $DEVICE" &
 				done
 				wait;
 				
