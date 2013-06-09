@@ -29,6 +29,7 @@ base1() {
 	DLOAD_SQL=$(mktemp);
 	echo "Generate hive parameters"
 	cat $LOAD_HEAD|tee $DLOAD_SQL;
+	cat $CONFD/sql.head >> $DLOAD_SQL;
 
 	VALS="${HDFS_R} $HIVE_R $BVALS";
 	echo "####`echo $0| awk -F/ '{print $NF}'`####";

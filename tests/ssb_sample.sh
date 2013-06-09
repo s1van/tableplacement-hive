@@ -11,7 +11,7 @@ BUFS="128";	# HDFS buffer size (KB)
 #OSRS="0,128,256,512,1024";	# os read ahead buffer size (KB)
 OSRS="256";	# os read ahead buffer size (KB)
 
-REP=3;
+REP=2;
 SCALE=10;
 HDFS_DATA_PATH=/ssb_s10;
 for rg in $RGS; do
