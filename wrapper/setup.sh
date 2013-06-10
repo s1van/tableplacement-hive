@@ -90,7 +90,7 @@ HIVE_CONF=$HIVE_HOME/conf;
 SLAVE=$HADOOP_CONF/slaves;
 
 MHOST="$(cat $HADOOP_CONF/masters)";
-HADOOP_TMP=/mnt/hadoop;
+HADOOP_TMP=/mnt/hadoop/data;
 
 ALLHOSTS=$(mktemp);
 echo $MHOST > $ALLHOSTS;
