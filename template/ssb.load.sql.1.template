@@ -5,18 +5,18 @@ DROP TABLE IF EXISTS part;
 DROP TABLE IF EXISTS supplier;
 
 
--- customer
-create external table customer_t (C_CUSTKEY INT, C_NAME STRING, C_ADDRESS STRING, C_CITY STRING,
-		C_NATION STRING, C_REGION STRING, C_PHONE STRING, C_MKTSEGMENT STRING) 
-	ROW FORMAT DELIMITED FIELDS TERMINATED BY '|' 
-	STORED AS TEXTFILE LOCATION '%%HDFS_ROOT%%/customer';
-create table customer (C_CUSTKEY INT, C_NAME STRING, C_ADDRESS STRING, C_CITY STRING,
-		C_NATION STRING, C_REGION STRING, C_PHONE STRING, C_MKTSEGMENT STRING) 
-	CLUSTERED BY (C_CUSTKEY) INTO %%C_B_NUM%% BUCKETS 
- 	ROW FORMAT SERDE "org.apache.hadoop.hive.serde2.columnar.LazyBinaryColumnarSerDe"
-	STORED AS RCFILE LOCATION '%%HIVE_ROOT%%/customer'; 
-INSERT overwrite table customer select * from customer_t;
-DROP TABLE customer_t;
+---- customer
+--create external table customer_t (C_CUSTKEY INT, C_NAME STRING, C_ADDRESS STRING, C_CITY STRING,
+--		C_NATION STRING, C_REGION STRING, C_PHONE STRING, C_MKTSEGMENT STRING) 
+--	ROW FORMAT DELIMITED FIELDS TERMINATED BY '|' 
+--	STORED AS TEXTFILE LOCATION '%%HDFS_ROOT%%/customer';
+--create table customer (C_CUSTKEY INT, C_NAME STRING, C_ADDRESS STRING, C_CITY STRING,
+--		C_NATION STRING, C_REGION STRING, C_PHONE STRING, C_MKTSEGMENT STRING) 
+--	CLUSTERED BY (C_CUSTKEY) INTO %%C_B_NUM%% BUCKETS 
+-- 	ROW FORMAT SERDE "org.apache.hadoop.hive.serde2.columnar.LazyBinaryColumnarSerDe"
+--	STORED AS RCFILE LOCATION '%%HIVE_ROOT%%/customer'; 
+--INSERT overwrite table customer select * from customer_t;
+--DROP TABLE customer_t;
 
 -- date 
 create external table date_t (D_DATEKEY INT, D_DATE STRING, D_DAYOFWEEK STRING, D_MONTH STRING,
@@ -58,33 +58,33 @@ DROP TABLE lineorder_t;
 
 
 
--- part
-create external table part_t (P_PARTKEY INT, P_NAME STRING, P_MFGR STRING, 
-		P_CATEGORY STRING, P_BRAND STRING, P_COLOR STRING, P_TYPE STRING, 
-		P_SIZE TINYINT, P_CONTAINER STRING) 
-	ROW FORMAT DELIMITED FIELDS TERMINATED BY '|' 
-	STORED AS TEXTFILE LOCATION '%%HDFS_ROOT%%/part';
-create table part (P_PARTKEY INT, P_NAME STRING, P_MFGR STRING, 
-		P_CATEGORY STRING, P_BRAND STRING, P_COLOR STRING, P_TYPE STRING, 
-		P_SIZE TINYINT, P_CONTAINER STRING) 
-	CLUSTERED BY (P_PARTKEY) INTO %%P_B_NUM%% BUCKETS 
-	ROW FORMAT SERDE "org.apache.hadoop.hive.serde2.columnar.LazyBinaryColumnarSerDe"
-	STORED AS RCFILE LOCATION '%%HIVE_ROOT%%/part'; 
-INSERT overwrite table part select * from part_t;
-DROP TABLE part_t;
-
-
--- supplier 
-create external table supplier_t (S_SUPPKEY INT, S_NAME STRING, S_ADDRESS STRING, 
-		S_CITY STRING, S_NATION STRING, S_REGION STRING, S_PHONE STRING) 
-	ROW FORMAT DELIMITED FIELDS TERMINATED BY '|' 
-	STORED AS TEXTFILE LOCATION '%%HDFS_ROOT%%/supplier';
-create table supplier (S_SUPPKEY INT, S_NAME STRING, S_ADDRESS STRING, 
-		S_CITY STRING, S_NATION STRING, S_REGION STRING, S_PHONE STRING) 
-	CLUSTERED BY (S_SUPPKEY) INTO %%S_B_NUM%% BUCKETS 
-	ROW FORMAT SERDE "org.apache.hadoop.hive.serde2.columnar.LazyBinaryColumnarSerDe"
-	STORED AS RCFILE LOCATION '%%HIVE_ROOT%%/supplier'; 
-INSERT overwrite table supplier select * from supplier_t;
-DROP TABLE supplier_t;
+---- part
+--create external table part_t (P_PARTKEY INT, P_NAME STRING, P_MFGR STRING, 
+--		P_CATEGORY STRING, P_BRAND STRING, P_COLOR STRING, P_TYPE STRING, 
+--		P_SIZE TINYINT, P_CONTAINER STRING) 
+--	ROW FORMAT DELIMITED FIELDS TERMINATED BY '|' 
+--	STORED AS TEXTFILE LOCATION '%%HDFS_ROOT%%/part';
+--create table part (P_PARTKEY INT, P_NAME STRING, P_MFGR STRING, 
+--		P_CATEGORY STRING, P_BRAND STRING, P_COLOR STRING, P_TYPE STRING, 
+--		P_SIZE TINYINT, P_CONTAINER STRING) 
+--	CLUSTERED BY (P_PARTKEY) INTO %%P_B_NUM%% BUCKETS 
+--	ROW FORMAT SERDE "org.apache.hadoop.hive.serde2.columnar.LazyBinaryColumnarSerDe"
+--	STORED AS RCFILE LOCATION '%%HIVE_ROOT%%/part'; 
+--INSERT overwrite table part select * from part_t;
+--DROP TABLE part_t;
+--
+--
+---- supplier 
+--create external table supplier_t (S_SUPPKEY INT, S_NAME STRING, S_ADDRESS STRING, 
+--		S_CITY STRING, S_NATION STRING, S_REGION STRING, S_PHONE STRING) 
+--	ROW FORMAT DELIMITED FIELDS TERMINATED BY '|' 
+--	STORED AS TEXTFILE LOCATION '%%HDFS_ROOT%%/supplier';
+--create table supplier (S_SUPPKEY INT, S_NAME STRING, S_ADDRESS STRING, 
+--		S_CITY STRING, S_NATION STRING, S_REGION STRING, S_PHONE STRING) 
+--	CLUSTERED BY (S_SUPPKEY) INTO %%S_B_NUM%% BUCKETS 
+--	ROW FORMAT SERDE "org.apache.hadoop.hive.serde2.columnar.LazyBinaryColumnarSerDe"
+--	STORED AS RCFILE LOCATION '%%HIVE_ROOT%%/supplier'; 
+--INSERT overwrite table supplier select * from supplier_t;
+--DROP TABLE supplier_t;
 
 

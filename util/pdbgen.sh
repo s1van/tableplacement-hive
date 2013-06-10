@@ -58,18 +58,19 @@ rdbgen() {
 
 	for part in $PARTS;do
 		echo "Generate part $part of table $TABLE on $HOST ..."
-		ssh $HOST eval "cd $DBGEN && $DBGEN/dbgen -f -s $SCALE -T $TABLE -C $SCALE -S $part";
+		ssh $HOST eval "cd $DBGEN && $DBGEN/dbgen -f -s $SCALE -T $TABLE -C $PARTNUM -S $part";
 	done
 
-	sleep 1;
+	sleep 4;
 	echo "Copy parts $(echo $PARTS) of table $TABLE to hdfs://$HDFS_PATH from $HOST ..."
+	ssh $HOST eval "chmod -R 777 $DBGEN"
 	ssh $HOST eval "ls $DBGEN| grep ${TNAME}.tbl| xargs -I % $HADOOP fs -copyFromLocal $DBGEN/% $HDFS_PATH"
 	ssh $HOST eval "ls $DBGEN| grep ${TNAME}.tbl| xargs -I % rm $DBGEN/%"
 }
 
 HOST_NUM=$(echo $HOSTLIST| wc -w);
 HINDEX=1;
-PARTNUM=$SCALE;
+PARTNUM=$HOST_NUM;
 
 for host in $HOSTLIST; do
 	parts="$(seq $HINDEX $HOST_NUM $PARTNUM)";

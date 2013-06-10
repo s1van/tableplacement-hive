@@ -20,7 +20,8 @@ tpch() {
 	pdsh -R ssh -w ^${HLIST} eval "cd $DBGEN && make >/dev/null 2>&1";
 	
 	$HEXEC fs -mkdir $HDFS_PATH;
-	for t  in $(echo "customer,c supplier,s nation,n region,r orders,O lineitem,L part,P partsupp,S"); do
+	#for t  in $(echo "customer,c supplier,s nation,n region,r orders,O lineitem,L part,P partsupp,S"); do
+	for t  in $(echo "lineitem,L"); do
 		TNAME=$(echo $t| awk -F',' '{print $1}');
 		TSYM=$(echo $t| awk -F',' '{print $2}');
 		
@@ -38,7 +39,8 @@ ssb() {
 	pdsh -R ssh -w ^${HLIST} eval "cd $DBGEN && make >/dev/null 2>&1";
 	
 	$HEXEC fs -mkdir $HDFS_PATH;
-	for t  in $(echo "customer,c,${SCALE} part,p,1 supplier,s,${SCALE} date,d,1 lineorder,l,${SCALE}"); do
+	#for t  in $(echo "customer,c,${SCALE} part,p,1 supplier,s,${SCALE} date,d,1 lineorder,l,${SCALE}"); do
+	for t  in $(echo "date,d,1 lineorder,l,${SCALE}"); do
 		TNAME=$(echo $t| awk -F',' '{print $1}');
 		TSYM=$(echo $t| awk -F',' '{print $2}');
 		SF=$(echo $t| awk -F',' '{print $3}');	#part and date cannot be generated incrementally

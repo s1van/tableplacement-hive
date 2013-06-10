@@ -6,7 +6,7 @@ DIR=$1;
 mkdir -p $DIR;
 
 RGS="4 64 128";	# row group size (MB)
-BUFS="64 128";	# HDFS buffer size (KB)
+BUFS="64,128";	# HDFS buffer size (KB)
 OSRS="512";	# os read ahead buffer size (KB)
 
 REP=3;
