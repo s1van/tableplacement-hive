@@ -92,6 +92,15 @@ tpch-query() {
 	local HEADSET=$2;	#includes RGSIZE, HDFS_BUF_SIZE
 	local OUTDIR=$3;
 
+	#echo "Execute Queries ... [$TAG $HEADSET $OUTDIR]"
+	tpch-query-q6 $@;
+}
+
+tpch-query-q6() { 
+	local TAG=$1;	
+	local HEADSET=$2;	#includes RGSIZE, HDFS_BUF_SIZE
+	local OUTDIR=$3;
+
 	echo "Execute Queries ... [$TAG $HEADSET $OUTDIR]"
 	run_query tpch_q6 $OUTDIR/tpch_q6_${TAG} $HEADSET
 }
@@ -162,6 +171,11 @@ SSB-Batch() {
 TPCH-Batch() {
 	echo "$0 [$@]"
 	batch $@ tpch-load tpch-query false BLOCK;
+}
+
+TPCH-CG-Q6-Batch() {
+	echo "$0 [$@]"
+	batch $@ tpch-load tpch-query-q6 false BLOCK;
 }
 
 SSB-Batch-DefaultBlockCpr() {
