@@ -56,7 +56,7 @@ usage()
 {
         echo "Usage: `echo $0| awk -F/ '{print $NF}'`  [-option]"
         echo "[description]:"
-        echo "  execute dbgen in parallel and load the date into HDFS"
+        echo "  execute dbgen in parallel and load the data into HDFS"
         echo "[option]:"
         echo "  -s  scale (>1)"
         echo "  -p  hdfs_path"
