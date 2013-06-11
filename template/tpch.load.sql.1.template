@@ -35,7 +35,8 @@ Create table lineitem (L_ORDERKEY INT, L_PARTKEY INT, L_SUPPKEY INT,
 	CLUSTERED BY (L_ORDERKEY, L_LINENUMBER) INTO %%L_B_NUM%%  BUCKETS 
         ROW FORMAT SERDE "org.apache.hadoop.hive.serde2.columnar.LazyBinaryColumnarSerDe"
 	STORED AS RCFILE LOCATION '%%HIVE_ROOT%%/lineitem'; 
-INSERT overwrite table lineitem select * from lineitem_t;
+INSERT overwrite table lineitem select * from lineitem_t
+	CLUSTER BY L_ORDERKEY, L_LINENUMBER;
 DROP TABLE lineitem_t;
 
 ---- nation 

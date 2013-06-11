@@ -53,7 +53,9 @@ create table lineorder (LO_ORDERKEY INT, LO_LINENUMBER TINYINT, LO_CUSTKEY INT,
 	CLUSTERED BY (LO_ORDERKEY, LO_LINENUMBER) INTO %%L_B_NUM%% BUCKETS 
 	ROW FORMAT SERDE "org.apache.hadoop.hive.serde2.columnar.LazyBinaryColumnarSerDe"
 	STORED AS RCFILE LOCATION '%%HIVE_ROOT%%/lineorder'; 
-INSERT overwrite table lineorder select * from lineorder_t;
+INSERT overwrite table lineorder select * from lineorder_t
+	CLUSTER BY LO_ORDERKEY, LO_LINENUMBER;
+
 DROP TABLE lineorder_t;
 
 
