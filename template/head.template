@@ -4,3 +4,4 @@ set hive.enforce.bucketing = true;
 
 SET hive.exec.compress.output=%%COMPRESS_ON%%; 
 SET io.seqfile.compression.type=%%COMPRESS_TYPE%%;
+set hive.exec.reducers.max=%%MAX_REDUCER%%;
