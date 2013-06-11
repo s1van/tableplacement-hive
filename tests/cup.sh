@@ -9,7 +9,7 @@ EMAIL=$1;
 SSB_DIR=/home/ubuntu/store/ssb
 TPCH_DIR=/home/ubuntu/store/tpch
 
-$WRAPD/setup.sh -b 256 -h 512,1024 -c 1,1 -r 3 -i;
+$WRAPD/setup.sh -b 256 -h 512,1024 -c 1,2 -r 3 -i;
 
 $WRAPD/dgen.sh -s 100 -p /tpch_s100 -f tpch;
 mail -s "tpch 100 generated" </dev/null "$EMAIL";
