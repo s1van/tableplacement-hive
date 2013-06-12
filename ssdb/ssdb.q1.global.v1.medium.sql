@@ -1,0 +1,3 @@
+SELECT SUM(v1),COUNT(*) FROM cycle;
+WHERE x BETWEEN 0 and 7500
+AND   y BWTWEEN 0 and 7500;
