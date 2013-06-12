@@ -164,22 +164,22 @@ summarize() {
 	local PREFIXES="$(echo $2| sed 's/,/ /g')";
 
 	local MEDIAN1=$(mktemp);
-	local MEDIAN2=$(mktemp);
+	local MEAN_RIO=$(mktemp);
 	local MEAN=$(mktemp);
 	local VARIANCE=$(mktemp);
 
 	for prefix in $PREFIXES; do
 		batch-list-stat $DIR $prefix Median| cut -f -8 > $MEDIAN1;
-		batch-list-stat $DIR $prefix Median| cut -f 11- > $MEDIAN2;
+		batch-list-stat $DIR $prefix Mean| cut -f 11- > $MEAN_RIO;
 		batch-list-stat $DIR $prefix Mean| cut -f 9,10 > $MEAN;
 		batch-list-stat $DIR $prefix Variance| cut -f 9,10 > $VARIANCE;
-		paste $MEDIAN1 $MEAN $VARIANCE $MEDIAN2| awk -v pf=$prefix 'BEGIN{OFS="\t"} {
+		paste $MEDIAN1 $MEAN $VARIANCE $MEAN_RIO| awk -v pf=$prefix 'BEGIN{OFS="\t"} {
 			if(NR==1) $1 = "TPL" OFS $1;
 			else $1 = pf OFS $1;
 			print $0;}';
 	done
 
-	rm $MEDIAN1 $MEDIAN2 $MEAN $VARIANCE;
+	rm $MEDIAN1 $MEAN_RIO $MEAN $VARIANCE;
 }
 
 
