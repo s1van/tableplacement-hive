@@ -12,23 +12,30 @@ source $CONFD/site.conf;
 SLAVE=$HADOOP_HOME/conf/slaves;
 NODE_NUM=$(cat $SLAVE| wc -l);
 
+INSPECT=$UTILD/hhInspect.py;
+
 update-task-info() {
 	local LOG=$1;
 	local MAP=$2;
 	local REDUCE=$3;
+	local MISC=$4;
 	
 	local TMP1=$(mktemp);
 	echo "Deal with the last Job in $LOG ..."
 	#JOBS=$(grep 'Tracking URL' $LOG| awk -F'=' '{print $3"="$4}'| sed 's/jobdetails/jobtasks/g');
 	JOBS=$(grep 'Tracking URL' $LOG| awk -F'=' '{print $3"="$4}'| sed 's/jobdetails/jobtasks/g'| tail -1);
+	JOBID=$(grep 'Tracking URL' $LOG| tail -1| awk -F'=' '{print $4}');
 	JNAMES=$(grep 'Tracking URL' $LOG| awk -F'=' '{if(NR==1) printf "%s", $4; else printf ",%s", $4;}');
-	touch $MAP $REDUCE;
+
+	touch $MAP $REDUCE $MISC;
 	for job in $JOBS; do
 	        curl $job'&type=map&pagenum=1' 2>/dev/null| egrep 'mins|sec'| sed 's/\(.*\)(\(.*\))\(.*\)/\2/g'| sed -e 's/mins/*60/g' -e 's/,/+/g' -e 's/sec//g'|bc | paste - $MAP > $TMP1
 	        cp $TMP1 $MAP;
 	        curl $job'&type=reduce&pagenum=1' 2>/dev/null| egrep 'mins|sec'| sed 's/\(.*\)(\(.*\))\(.*\)/\2/g'| sed -e 's/mins/*60/g' -e 's/,/+/g' -e 's/sec//g'|bc | paste - $REDUCE > $TMP1
 	        cp $TMP1 $REDUCE;
 	done
+
+	$INSPECT --ip=localhost --port=50030 --jobid=$JOBID --info=MapPhaseLength,ReducePhaseLength >> $MISC;
 	
 	rm $TMP1;
 }
@@ -42,6 +49,7 @@ run_query() {
 	local IOS=${BASE}.iostat;
 	local MAP=${BASE}.mapper;
 	local REDUCE=${BASE}.reducer;
+	local MISC=${BASE}.misc;
 	
 	echo "Cleanup Cache...";
         $UTILD/cache-cleanup.sh -g ${SLAVE};
@@ -54,7 +62,7 @@ run_query() {
 	pdsh -R ssh -w ^${SLAVE} iostat -d -t -k $MONDEV >> $IOS;
 
 	echo "Update Mapper info in $MAP"
-	update-task-info $LOG $MAP $REDUCE;
+	update-task-info $LOG $MAP $REDUCE $MISC;
 }
 
 ssb-load() { 
