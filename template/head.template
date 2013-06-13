@@ -2,7 +2,7 @@ set io.file.buffer.size=%%HDFS_BUF_SIZE%%;
 set hive.io.rcfile.record.buffer.size=%%RGSIZE%%;
 
 SET hive.exec.compress.output=%%COMPRESS_ON%%; 
-SET io.seqfile.compression.type=%%COMPRESS_TYPE%%;
+-- SET io.seqfile.compression.type=%%COMPRESS_TYPE%%;
 -- set hive.exec.reducers.max=%%MAX_REDUCER%%;
 
 set hive.auto.convert.join=true;

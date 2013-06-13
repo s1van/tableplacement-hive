@@ -40,6 +40,8 @@ base1() {
 	$HIVE -f $DLOAD_SQL;
 	
 	rm -f $DLOAD_SQL;
+	$HADOOP fs -ls $HDFS_R 2>&1| awk '{print $NF}'| tail -n +4| xargs -I % $HADOOP fs -ls %;
+	$HADOOP fs -ls $HIVE_R 2>&1| awk '{print $NF}'| tail -n +4| xargs -I % $HADOOP fs -ls %;
 }
 	
 
