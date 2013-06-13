@@ -35,7 +35,7 @@ update-task-info() {
 	        cp $TMP1 $REDUCE;
 	done
 
-	$INSPECT --ip=localhost --port=50030 --jobid=$JOBID --info=MapPhaseLength,ReducePhaseLength >> $MISC;
+	$INSPECT --ip=localhost --port=50030 --jobid=$JOBID --info=MapPhaseLength,ReducePhaseLength,FinishedTime >> $MISC;
 	
 	rm $TMP1;
 }

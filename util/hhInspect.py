@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 
 def usage():
 	print "Usage: hhInspect.py [--help] --ip=master_address --port=webUI_port --jobid=hadoop_jobid --info=info1,info2" 
-	print "Info Option: MapPhaseLength, ReducePhaseLength"
+	print "Info Option: MapPhaseLength, ReducePhaseLength, FinishedTime"
 	print "Notice that the script only searches the first page of the jobhistoryhome.jsp"
 	print ""
 
@@ -40,7 +40,24 @@ def getReducePhaseLength(server, jobid):
 	
 	return stime;
 
+def getFinishedTime(server, jobid):
+	jumpto = BeautifulSoup(urllib2.urlopen(server + "jobhistoryhome.jsp")).findAll('a', {'href': re.compile(jobid)}).pop().get('href')
+	cc = BeautifulSoup(urllib2.urlopen(server + jumpto)).stripped_strings
+	i = 0
+	for s in cc:
+		i = i + 1
+		if (i == 16):
+			raw = s
+	ltime = map(int, re.findall('[0-9]+',re.findall(r'\(.+\)', raw)[0]))
+	tunit = [3600, 60, 1]
 
+	stime=0
+	for x in range(1, len(ltime)+1):
+		stime = ltime[-x] * tunit[-x] + stime
+	
+	return stime;
+
+	
 def main():
 	if len(sys.argv) < 5:
 		print "ERROR: not enough arguments"
