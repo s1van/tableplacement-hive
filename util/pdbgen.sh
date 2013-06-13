@@ -75,6 +75,10 @@ if [ "$PARTNUM" -lt "2" ]; then
 	PARTNUM=2;
 fi
 
+if [ "$SCALE" -lt "$HOST_NUM" ]; then
+	PARTNUM=$SCALE;
+fi
+
 if [ "$SCALE" -eq "1" ]; then
 	PARTNUM=1;
 fi
