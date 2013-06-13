@@ -1,21 +1,23 @@
 ##############
 ##analyze.sh##
 ############
-
-"batch-ssb() DIR" 			extract useful results into .res
-"batch-ssb-list-stat() DIR PREFIX ATTR" list select results in DIR with a given PREFIX (ssb1, ssb2, ...) on a specific ATTR (Mean, Median, Variance, ...)
+1. Extract information from collected logs
+2. Summarize and present results
 
 
 ###########
 ##test.sh##
 #########
-
-SSB-Batch RGSIZE LOAD_TPL HDFS_BUF_SIZE OS_READ_AHEAD_BUF_SIZE REP SCALE OUTDIR
+Load data from Hadoop into Hive (load.sh), then execute queries (run.sh)
 
 
 ###########
 ##dgen.sh##
 #########
+Generate and load data into HDFS in parallel using dbgen
 
-Generate and Load data into HDFS using dbgen
-./dgen.sh tpch/ssh scale hdfs_path
+
+############
+##setup.sh##
+##########
+Configure and initialize Hadoop and Hive

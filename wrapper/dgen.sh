@@ -99,5 +99,5 @@ then
 	exit;
 fi
 
-echo $@;
+echo "$0 $@";
 $FUNC $SCALE $HPATH;

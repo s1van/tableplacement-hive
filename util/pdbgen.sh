@@ -57,7 +57,7 @@ rdbgen() {
 	TNAME=$(basename $HDFS_PATH);
 
 	for part in $PARTS;do
-		echo "Generate part $part of table $TABLE on $HOST ..."
+		echo "Generate part ${part}/${PARTNUM} of table $TABLE on $HOST ..."
 		ssh $HOST eval "cd $DBGEN && $DBGEN/dbgen -f -s $SCALE -T $TABLE -C $PARTNUM -S $part";
 	done
 
@@ -71,10 +71,19 @@ rdbgen() {
 HOST_NUM=$(echo $HOSTLIST| wc -w);
 HINDEX=1;
 PARTNUM=$HOST_NUM;
+if [ "$PARTNUM" -lt "2" ]; then
+	PARTNUM=2;
+fi
+
+if [ "$SCALE" -eq "1" ]; then
+	PARTNUM=1;
+fi
 
 for host in $HOSTLIST; do
 	parts="$(seq $HINDEX $HOST_NUM $PARTNUM)";
-	rdbgen "$parts" $host &
+	if [ "$parts" != "" ]; then
+		rdbgen "$parts" $host &
+	fi
 
 	HINDEX=$(($HINDEX + 1));
 done

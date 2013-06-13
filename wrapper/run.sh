@@ -32,11 +32,17 @@ ssb1_1() { base $SSBD/q1_1 $1; }
 ssb1_2() { base $SSBD/q1_2 $1; }
 ssb1_3() { base $SSBD/q1_3 $1; }
 
+ssb1_1_cg() { base $SSBD/q1_1.cg $1; }
+ssb1_2_cg() { base $SSBD/q1_2.cg $1; }
+ssb1_3_cg() { base $SSBD/q1_3.cg $1; }
+
 
 tpch_q6() { base $TPCHD/q6_forecast_revenue_change.hive $1; }
+tpch_q6_cg() { base $TPCHD/q6.cg.sql $1; }
 
 ##################
 ###    main    ###
 ##################
 $@;
+#Handle single query
 

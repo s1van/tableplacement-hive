@@ -9,7 +9,7 @@ SSBD=$CDIR/ssb;
 
 source $CONFD/site.conf;
 DEV=$(echo $MONDEV| sed 's/dev//g'| sed 's/\///g');
-HOSTLIST="$(cat $PDSH_IPLIST)";
+HOSTLIST="$(cat $HADOOP_HOME/conf/slaves)";
 
 ###########
 ##Formats##

@@ -1,29 +1,21 @@
 cache-cleanup.sh
 ################
-
 Reset /proc/sys/vm/drop_caches to clean up cache. 
-Return immediately, while requires seconds (linear to the size of used memory) to complete.
-
 
 
 fillTemplate.py
 ###############
-
 Fill templates in ../template
-
 
 
 load_tbl_hdfs.sh
 ################
-
 Copy all .tbl in a folder to a specified HDFS folder.
-
 
 
 columnGrpSQL.py
 ###############
-
-Generate SQL queries to setup given column groups. E.g.
+Generate SQL queries to form specific column groups. E.g.
 1. tpch/customer
 ./columnGrpSQL.py --columns=C_CUSTKEY,C_NAME,C_ADDRESS,C_NATIONKEY,C_PHONE,C_ACCTBAL,C_MKTSEGMENT,C_COMMENT \
 	--types=INT,STRING,STRING,INT,STRING,DOUBLE,STRING,STRING \
@@ -31,3 +23,13 @@ Generate SQL queries to setup given column groups. E.g.
 
 2. tpch/lineitem
 ./columnGrpSQL.py --columns=L_ORDERKEY,L_PARTKEY,L_SUPPKEY,L_LINENUMBER,L_QUANTITY,L_EXTENDEDPRICE,L_DISCOUNT,L_TAX,L_RETURNFLAG,L_LINESTATUS,L_SHIPDATE,L_COMMITDATE,L_RECEIPTDATE,L_SHIPINSTRUCT,L_SHIPMODE,L_COMMENT --types=INT,INT,INT,INT,DOUBLE,DOUBLE,DOUBLE,DOUBLE,STRING,STRING,STRING,STRING,STRING,STRING,STRING,STRING --groups=0,1,2,3,11,12,13,14,15:4,5,6,7,8,9,10 --keys=0,3 --table=lineitem
+
+
+hhInspect.py
+############
+Dig information out of Hadoop job logs (through jobhistoryhome.jsp)
+
+
+stat.sh
+#######
+Wrapped R scripts for data analysis

@@ -96,16 +96,18 @@ ssb-query() {
 	run_query ssb1_3 $OUTDIR/ssb1_3_${TAG} $HEADSET
 }
 
-tpch-query() { 
+ssb-query-cg() { 
 	local TAG=$1;	
 	local HEADSET=$2;	#includes RGSIZE, HDFS_BUF_SIZE
 	local OUTDIR=$3;
 
-	#echo "Execute Queries ... [$TAG $HEADSET $OUTDIR]"
-	tpch-query-q6 $@;
+	echo "Execute Queries ... [$TAG $HEADSET $OUTDIR]"
+	run_query ssb1_1_cg $OUTDIR/ssb1_1_${TAG} $HEADSET 
+	run_query ssb1_2_cg $OUTDIR/ssb1_2_${TAG} $HEADSET
+	run_query ssb1_3_cg $OUTDIR/ssb1_3_${TAG} $HEADSET
 }
 
-tpch-query-q6() { 
+tpch-query() { 
 	local TAG=$1;	
 	local HEADSET=$2;	#includes RGSIZE, HDFS_BUF_SIZE
 	local OUTDIR=$3;
@@ -114,9 +116,27 @@ tpch-query-q6() {
 	run_query tpch_q6 $OUTDIR/tpch_q6_${TAG} $HEADSET
 }
 
+tpch-query-cg() { 
+	local TAG=$1;	
+	local HEADSET=$2;	#includes RGSIZE, HDFS_BUF_SIZE
+	local OUTDIR=$3;
+
+	echo "Execute Queries ... [$TAG $HEADSET $OUTDIR]"
+	run_query tpch_q6_cg $OUTDIR/tpch_q6_${TAG} $HEADSET
+}
+
+tpch-query-q6() { 
+	local TAG=$1;	
+	local HEADSET=$2;	#includes RGSIZE, HDFS_BUF_SIZE
+	local OUTDIR=$3;
+
+	echo "Execute Queries ... [$TAG $HEADSET $OUTDIR]"
+	run_query tpch_q6_cg $OUTDIR/tpch_q6_${TAG} $HEADSET
+}
+
 batch() {
-	local RGSIZE=$1;
-        local LOAD_WHICH=$2; # column group, other optimizations
+        local LOAD_WHICH=$1; # column group, other optimizations
+	local RGSIZE=$2;
         local HDFS_BUF_SIZES="$(echo $3| sed 's/,/ /g')";
         local OS_READAHEAD_SIZES="$(echo $4| sed 's/,/ /g')";
         local REP=$5;
@@ -172,29 +192,29 @@ batch() {
 }
 
 
-SSB-Batch() {
+SSB-Batch-Default() {
 	echo "$0 [$@]"
-	batch $@ ssb-load ssb-query false BLOCK;
+	batch ssb1 $@ ssb-load ssb-query false BLOCK;
 }
 
-TPCH-Batch() {
+SSB-Batch-Trojan() {
 	echo "$0 [$@]"
-	batch $@ tpch-load tpch-query false BLOCK;
+	batch ssb2 $@ ssb-load ssb-query-cg false BLOCK;
 }
 
-TPCH-CG-Q6-Batch() {
+TPCH-Batch-Default() {
 	echo "$0 [$@]"
-	batch $@ tpch-load tpch-query-q6 false BLOCK;
+	batch tpch1 $@ tpch-load tpch-query false BLOCK;
 }
 
-SSB-Batch-DefaultBlockCpr() {
+TPCH-Batch-Trojan() {
 	echo "$0 [$@]"
-	batch $@ ssb-load ssb-query true BLOCK;
+	batch tpch2 $@ tpch-load tpch-query-cg false BLOCK;
 }
 
-TPCH-Batch-DefaultBlockCpr() {
+TPCH-Batch-Q6() {
 	echo "$0 [$@]"
-	batch $@ tpch-load tpch-query true BLOCK;
+	batch tpch_q6 $@ tpch-load tpch-query-q6 false BLOCK;
 }
 
 
@@ -203,13 +223,12 @@ TPCH-Batch-DefaultBlockCpr() {
 ##################
 usage()
 {
-        echo "Usage: `echo $0| awk -F/ '{print $NF}'`  [-option]"
+        echo "Usage: `echo $0| awk -F/ '{print $NF}'` "
         echo "[arguments]:"
         echo "  TEST: SSB-Batch, SSB-Batch-DefaultBlockCpr, TPCH-Batch-DefaultBlockCpr"
         echo "  RGSIZE"
-        echo "  LOAD_WHICH: ssb1, ssb2, ssb3, tpch1, tpch2, tpch3 (in reference to templates)"
-        echo "  HDFS_BUFFER_SIZE"
-        echo "  OS_READ_AHEAD_BUFFER_SIZE"
+        echo "  HDFS_BUFFER_SIZES"
+        echo "  OS_READ_AHEAD_BUFFER_SIZES"
         echo "  REPEAT_TIMES"
         echo "  SCALE_FACTOR"
         echo "  LOGDIR"
@@ -217,7 +236,7 @@ usage()
         echo
 }
 
-if [ $# -lt 9 ]
+if [ $# -lt 8 ]
 then
         usage
         exit
