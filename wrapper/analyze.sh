@@ -69,15 +69,17 @@ extract() {
 	echo "Extract Results into $RRES ..."
         $UTILD/reshape.py --format="$FORMAT" --input=$LOG >> $RRES;
 
-	IOSTAT=${BASE}.iostat;
-	STAT=${BASE}.stat;
-	MAP=${BASE}.mapper;
-	REDUCE=${BASE}.reducer;
+	local IOSTAT=${BASE}.iostat;
+	local STAT=${BASE}.stat;
+	local MAP=${BASE}.mapper;
+	local REDUCE=${BASE}.reducer;
+	local MISC=${BASE}.misc;
+
 	local TMP1=$(mktemp);
 	local TMP2=$(mktemp);
 
-	awk 'BEGIN{OFS="\t"} {print $7,$8,$9,$3,$5,$6,$4}' $RRES> $TMP1;
-	COLNAMES='Cumlulative_CPU,HDFS_Read,HDFS_Write,Time_taken,#Mapper,#Reducer,#Row';
+	awk 'BEGIN{OFS="\t"} {print $7,$8,$9,$3,$5,$6,$4}' $RRES| paste - $MISC > $TMP1;
+	COLNAMES='Cumlulative_CPU,HDFS_Read,HDFS_Write,Time_taken,#Mapper,#Reducer,#Row,MapPhase,ReducePhase,MRJobTime';
 	
 	echo "Refine $TMP1 to form $STAT ..."
 	stat1 $TMP1 $STAT "$COLNAMES";
@@ -99,7 +101,7 @@ extract() {
 	done
 	
 	echo "";
-	rm $TMP1 $TMP2;
+	rm $TMP1 $TMP2 $RRES;
 }
 
 ssb-batch-extract() {
@@ -138,8 +140,6 @@ call-list-stat() {
 	local KEYWORD=$2;
 	local QUERY=$3;
 
-	COLNAMES='CPU:s\tHread:B\tHwrite:B\tTotal:s\t#Mapper\t#Reducer\t#Row\tMapper:s\tReducer:s\tRR:KB\tRW:KB';
-	echo -e "Query\tHBuf:KB\tOBuf:KB\t$COLNAMES";
 	list-stat $DIR $KEYWORD| sed -e "s@\"${KEYWORD}\"@@g" | awk -F'_' 'BEGIN{OFS="\t"} {print $1"."$2, substr($3,2), substr($4,2)}'| grep "$QUERY"; 
 }
 
@@ -151,10 +151,10 @@ batch-list-stat() {
 	lists=$(ls $DIR| grep "${PREFIX}-RG");
 	for list in $lists; do
 		RGSIZE=$(echo $list| sed -e "s@${PREFIX}-RG@@g");
+		#insert Row Group Size
 		call-list-stat $DIR/$list $ATTR | awk -v rg=$RGSIZE '{OFS="\t"} {
 			$8=$9=$10=""; 
-			if (NR==1) $1 = $1 OFS "RG:M"; 
-			else $1 = $1 OFS rg; 
+			$1 = $1 OFS rg; 
 			print $0;}' | sed -e 's/\t\t/\t/g' -e 's/\t\t/\t/g'
 	done
 }
@@ -168,14 +168,21 @@ summarize() {
 	local MEAN=$(mktemp);
 	local VARIANCE=$(mktemp);
 
+	COL_CONF='Query\tRowGroup_Size:M\tHDFS_BufSize:KB\tOS_BufSize:KB';	#1-4
+	COL_HIVE='CPU:s\tHDFS_Read:B\tHDFS_Write:B\tHive_Job:s';		#5-8
+	COL_HADOOP='MapPhase:s\tReducePhase:s\tHADOOP_Job:s';			#11-13
+	COL_MR='E(Mapper):s\tE(Reducer):s\tSD(Mapper):s\tSD(Reducer):s'		#9-10
+	COL_IOSTAT='REAL_READ:KB\tREAL_WRITE:KB'				#14-
+
+	echo -e "TablePlacement\t${COL_CONF}\t${COL_HIVE}\t${COL_HADOOP}\t${COL_MR}\t${COL_IOSTAT}";
+
 	for prefix in $PREFIXES; do
-		batch-list-stat $DIR $prefix Median| cut -f -8 > $MEDIAN1;
-		batch-list-stat $DIR $prefix Mean| cut -f 11- > $MEAN_RIO;
+		batch-list-stat $DIR $prefix Median| cut -f -8,11-13 > $MEDIAN1;
+		batch-list-stat $DIR $prefix Mean| cut -f 14- > $MEAN_RIO;
 		batch-list-stat $DIR $prefix Mean| cut -f 9,10 > $MEAN;
 		batch-list-stat $DIR $prefix Variance| cut -f 9,10 > $VARIANCE;
-		paste $MEDIAN1 $MEAN $VARIANCE $MEAN_RIO| awk -v pf=$prefix 'BEGIN{OFS="\t"} {
-			if(NR==1) $1 = "TPL" OFS $1;
-			else $1 = pf OFS $1;
+		$UTILD/stat.sh colsum_odd_even $MEAN_RIO| paste $MEDIAN1 $MEAN $VARIANCE - | awk -v pf=$prefix 'BEGIN{OFS="\t"} {
+			$1 = pf OFS $1;
 			print $0;}';
 	done
 

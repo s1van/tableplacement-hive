@@ -17,6 +17,23 @@ R --slave --vanilla --quiet --no-save << EEE
 EEE
 }
 
+colsum_odd_even() {
+INPUT=$1;
+
+R --slave --vanilla --quiet --no-save << EEE
+	m <- read.table("$INPUT")
+	ll<- length(m)
+	
+	if (ll == 2) {
+		cc <- m
+	} else {
+		c1 <- rowSums(m[,seq(1,ll,2)])
+		c2 <- rowSums(m[,seq(2,ll,2)])
+		cc <- cbind(c1,c2)
+	}
+	write.table(cc, row.names=FALSE, col.names=FALSE, sep='\t')
+EEE
+}
 
 ##########
 ##MAIN()##
