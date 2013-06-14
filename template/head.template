@@ -1,10 +1,10 @@
 set io.file.buffer.size=%%HDFS_BUF_SIZE%%;
 set hive.io.rcfile.record.buffer.size=%%RGSIZE%%;
 
-SET hive.exec.compress.output=%%COMPRESS_ON%%; 
--- SET io.seqfile.compression.type=%%COMPRESS_TYPE%%;
--- set hive.exec.reducers.max=%%MAX_REDUCER%%;
-
+set hive.exec.compress.output=%%COMPRESS_ON%%; 
+-- set io.seqfile.compression.type=%%COMPRESS_TYPE%%;
+-- set mapred.reduce.tasks=%%REDUCER_NUM%%;
+ 
 set hive.auto.convert.join=true;
 set hive.auto.convert.join.noconditionaltask=true;
 set hive.auto.convert.join.noconditionaltask.size=10000000000;

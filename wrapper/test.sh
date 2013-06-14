@@ -160,7 +160,7 @@ batch() {
 	echo $@ >> $OUTDIR/README;
 
 	echo "Set HDFS Buffer Size, Row Group Size ${RGSIZE}MiB for Loading"
-	VARS="HDFS_BUF_SIZE RGSIZE COMPRESS_ON COMPRESS_TYPE MAX_REDUCER";
+	VARS="HDFS_BUF_SIZE RGSIZE COMPRESS_ON COMPRESS_TYPE REDUCER_NUM";
 	VALS="524288 $(($RGSIZE * 1024 * 1024)) $C_ON $C_TYPE $NODE_NUM";
 	HEADSET=$(mktemp);
 	$UTILD/fillTemplate.py --vars="$VARS" --vals="$VALS" --template=$TPLD/head.template > $HEADSET;
@@ -175,7 +175,7 @@ batch() {
 		for bufsize in $HDFS_BUF_SIZES; do
 			for osbuf in $OS_READAHEAD_SIZES; do
 				echo -e "\nSet HDFS Buffer Size ${bufsize}KB, OS Readahead Buffer ${osbuf}KB"
-				VALS="$(($bufsize * 1024)) $(($RGSIZE * 1024)) $C_ON $C_TYPE $NODE_NUM";
+				VALS="$(($bufsize * 1024)) $(($RGSIZE * 1024)) $C_ON $C_TYPE 1";
 				for host in $(cat $SLAVE); do
 					ssh -i $SSHKEY $host "sudo blockdev --setra $(($osbuf * 2)) $DEVICE" &
 				done

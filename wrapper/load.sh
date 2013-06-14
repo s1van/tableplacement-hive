@@ -50,23 +50,23 @@ base1() {
 	
 
 SSB_BVARS="C_B_NUM D_B_NUM L_B_NUM P_B_NUM S_B_NUM";	#Bucket size used in templates
-SSB_NBVALS="2837046 0 386303450 17139259 166676"; #Set 0 for fixed size table (594313001) 
-SSB_CG_NBVALS="2837046 0 455748490 17139259 166676"; #Set 0 for fixed size table (624313001)
+SSB_NBVALS="2837046 0 366303450 17139259 166676"; #Set 0 for fixed size table (594313001) 
+SSB_CG_NBVALS="2837046 0 393791940 17139259 166676"; #Set 0 for fixed size table
 SSB_HDFS_R=/ssb;
 SSB_HIVE_R=/user/hive/warehouse/ssb;
 
-ssb1() { base1 $TPLD/ssb.load.sql.1.template $3 ${SSB_HIVE_R}1 $1 "$SSB_BVARS" "$SSB_NBVALS" $2; }
+ssb1() { base1 $TPLD/ssb.load.sql.1.template $3 ${SSB_HIVE_R}1 $1 "$SSB_BVARS" "$SSB_CG_NBVALS" $2; } #will increase the #bucket
 ssb2() { base1 $TPLD/ssb.load.sql.2.template $3 ${SSB_HIVE_R}2 $1 "$SSB_BVARS" "$SSB_CG_NBVALS" $2; }
 ssb3() { base1 $TPLD/ssb.load.sql.3.template $3 ${SSB_HIVE_R}3 $1 "$SSB_BVARS" "$SSB_CG_NBVALS" $2; }
 
 
 TPCH_BVARS="C_B_NUM L_B_NUM N_B_NUM O_B_NUM P_B_NUM PS_B_NUM R_B_NUM S_B_NUM";
-TPCH_NBVALS="24346144 759863287 0 171952161 24135125 118984616 0 1409184";
-TPCH_CG_NBVALS="30346144 889863287 0 171952161 24135125 118984616 0 1409184"; #869863287
+TPCH_NBVALS="24346144 749863287 0 171952161 24135125 118984616 0 1409184";
+TPCH_CG_NBVALS="30346144 793630406 0 171952161 24135125 118984616 0 1409184";
 TPCH_HDFS_R=/tpch;
 TPCH_HIVE_R=/user/hive/warehouse/tpch;
 
-tpch1() { base1 $TPLD/tpch.load.sql.1.template $3 ${TPCH_HIVE_R}1 $1 "$TPCH_BVARS" "$TPCH_NBVALS" $2; }
+tpch1() { base1 $TPLD/tpch.load.sql.1.template $3 ${TPCH_HIVE_R}1 $1 "$TPCH_BVARS" "$TPCH_CG_NBVALS" $2; } #will increase the #bucket
 tpch2() { base1 $TPLD/tpch.load.sql.2.template $3 ${TPCH_HIVE_R}2 $1 "$TPCH_BVARS" "$TPCH_CG_NBVALS" $2; }
 tpch3() { base1 $TPLD/tpch.load.sql.3.template $3 ${TPCH_HIVE_R}3 $1 "$TPCH_BVARS" "$TPCH_CG_NBVALS" $2; }
 tpch_q6() { base1 $TPLD/tpch.load.sql.cg_q6.template $3 ${TPCH_HIVE_R}_q6 $1 "$TPCH_BVARS" "$TPCH_CG_NBVALS" $2; }
