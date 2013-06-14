@@ -9,6 +9,7 @@ SSBD=$CDIR/ssb;
 
 source $CONFD/site.conf;
 GEN=$UTILD/pdbgen.sh;
+SGEN=$UTILD/pssdbgen.sh;
 HLIST=$HADOOP_HOME/conf/slaves;
 HEXEC=$HADOOP_HOME/bin/hadoop;
 
@@ -51,6 +52,19 @@ ssb() {
 	wait;
 }
 
+ssdb() {
+	local SCALE=$1;
+	local HDFS_PATH=$2;
+
+	DBGEN=$SSDB_DBGEN_HOME;
+	pdsh -R ssh -w ^${HLIST} eval "cd $DBGEN && cmake CMakeLists.txt >/dev/null 2>&1";
+	pdsh -R ssh -w ^${HLIST} eval "cd $DBGEN && make >/dev/null 2>&1";
+	
+	TNAME=cycle;
+	$HEXEC fs -mkdir $HDFS_PATH/$TNAME;
+	$SGEN -c $SCALE -t $SSDB_TILE_PATH -e $DBGEN -h $HEXEC -p $HDFS_PATH/$TNAME -f $HLIST
+}
+
 ##################
 ###    main    ###
 ##################
@@ -60,9 +74,9 @@ usage()
         echo "[description]:"
         echo "  execute dbgen in parallel and load the data into HDFS"
         echo "[option]:"
-        echo "  -s  scale (>1)"
+        echo "  -s  scale (>1; for ssdb, scales are tiny, small, normal, and large)"
         echo "  -p  hdfs_path"
-        echo "  -f  benchmark (tpch, ssb)"
+        echo "  -f  benchmark (tpch, ssb, ssdb)"
         echo ""
         echo
 }
@@ -93,7 +107,7 @@ do
         esac
 done
 
-if [ $SCALE -le 1 ]
+if [ "$SCALE" == "1" ]
 then
 	usage;
 	exit;

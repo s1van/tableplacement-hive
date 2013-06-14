@@ -40,12 +40,16 @@ base1() {
 	$HIVE -f $DLOAD_SQL;
 	
 	rm -f $DLOAD_SQL;
+	echo "-----RAW Files-----";
 	$HADOOP fs -ls $HDFS_R 2>&1| awk '{print $NF}'| tail -n +4| xargs -I % $HADOOP fs -ls %;
+	echo "-----HIVE Files-----";
 	$HADOOP fs -ls $HIVE_R 2>&1| awk '{print $NF}'| tail -n +4| xargs -I % $HADOOP fs -ls %;
+	echo "-----HIVE Blocks-----";
+	$HADOOP fsck $HIVE_R -files -blocks;
 }
 	
 
-SSB_BVARS="C_B_NUM D_B_NUM L_B_NUM P_B_NUM S_B_NUM";
+SSB_BVARS="C_B_NUM D_B_NUM L_B_NUM P_B_NUM S_B_NUM";	#Bucket size used in templates
 SSB_NBVALS="2837046 0 386303450 17139259 166676"; #Set 0 for fixed size table (594313001) 
 SSB_CG_NBVALS="2837046 0 455748490 17139259 166676"; #Set 0 for fixed size table (624313001)
 SSB_HDFS_R=/ssb;
@@ -54,6 +58,7 @@ SSB_HIVE_R=/user/hive/warehouse/ssb;
 ssb1() { base1 $TPLD/ssb.load.sql.1.template $3 ${SSB_HIVE_R}1 $1 "$SSB_BVARS" "$SSB_NBVALS" $2; }
 ssb2() { base1 $TPLD/ssb.load.sql.2.template $3 ${SSB_HIVE_R}2 $1 "$SSB_BVARS" "$SSB_CG_NBVALS" $2; }
 ssb3() { base1 $TPLD/ssb.load.sql.3.template $3 ${SSB_HIVE_R}3 $1 "$SSB_BVARS" "$SSB_CG_NBVALS" $2; }
+
 
 TPCH_BVARS="C_B_NUM L_B_NUM N_B_NUM O_B_NUM P_B_NUM PS_B_NUM R_B_NUM S_B_NUM";
 TPCH_NBVALS="24346144 759863287 0 171952161 24135125 118984616 0 1409184";
@@ -66,6 +71,19 @@ tpch2() { base1 $TPLD/tpch.load.sql.2.template $3 ${TPCH_HIVE_R}2 $1 "$TPCH_BVAR
 tpch3() { base1 $TPLD/tpch.load.sql.3.template $3 ${TPCH_HIVE_R}3 $1 "$TPCH_BVARS" "$TPCH_CG_NBVALS" $2; }
 tpch_q6() { base1 $TPLD/tpch.load.sql.cg_q6.template $3 ${TPCH_HIVE_R}_q6 $1 "$TPCH_BVARS" "$TPCH_CG_NBVALS" $2; }
 
+
+SSDB_BVARS="C_B_NUM";
+SSDB_HDFS_R=/ssdb;
+SSDB_HIVE_R=/user/hive/warehouse/ssdb;
+
+#SCALE = tiny(500MiB), small(99GiB), normal(999GiB), large(9.9TiB) while we only take one cycle
+ssdb_tiny() { base1 $1 $2 $3 $5 "$SSDB_BVARS" "579067130" $4; }	#TPL, HDFS_PATH, HIVE_PATH, HEAD, SIZE_FACTOR(affected by SerDe)
+ssdb_small() { base1 $1 $2 $3 $5 "$SSDB_BVARS" "16878055320" $4; }
+ssdb_normal() { base1 $1 $2 $3 $5 "$SSDB_BVARS" "67995457900" $4; }
+ssdb_large() { base1 $1 $2 $3 $5 "$SSDB_BVARS" "278600130760" $4; }
+
+ssdb_default() { ssdb_$1 $TPLD/ssdb.load.sql.default.template $3 ${SSDB_HIVE_R}1 $2 '0.55'; } 
+ssdb_v1() { ssdb_$1 $TPLD/ssdb.load.sql.v1.template $3 ${SSDB_HIVE_R}2 $2 '0.62'; } 
 
 ##################
 ###    main    ###
