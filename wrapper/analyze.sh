@@ -170,17 +170,17 @@ summarize() {
 
 	COL_CONF='Query\tRowGroup_Size:M\tHDFS_BufSize:KB\tOS_BufSize:KB';	#1-4
 	COL_HIVE='CPU:s\tHDFS_Read:B\tHDFS_Write:B\tHive_Job:s';		#5-8
-	COL_HADOOP='MapPhase:s\tReducePhase:s\tHADOOP_Job:s';			#11-13
-	COL_MR='E(Mapper):s\tE(Reducer):s\tSD(Mapper):s\tSD(Reducer):s'		#9-10
+	COL_HADOOP='MapPhase:s\tReducePhase:s\tHADOOP_Job:s';			#9-11
+	COL_MR='E(Mapper):s\tE(Reducer):s\tSD(Mapper):s\tSD(Reducer):s'		#12-13
 	COL_IOSTAT='REAL_READ:KB\tREAL_WRITE:KB'				#14-
 
 	echo -e "TablePlacement\t${COL_CONF}\t${COL_HIVE}\t${COL_HADOOP}\t${COL_MR}\t${COL_IOSTAT}";
 
 	for prefix in $PREFIXES; do
-		batch-list-stat $DIR $prefix Median| cut -f -8,11-13 > $MEDIAN1;
+		batch-list-stat $DIR $prefix Median| cut -f -11 > $MEDIAN1;
 		batch-list-stat $DIR $prefix Mean| cut -f 14- > $MEAN_RIO;
-		batch-list-stat $DIR $prefix Mean| cut -f 9,10 > $MEAN;
-		batch-list-stat $DIR $prefix Variance| cut -f 9,10 > $VARIANCE;
+		batch-list-stat $DIR $prefix Mean| cut -f 12,13 > $MEAN;
+		batch-list-stat $DIR $prefix Variance| cut -f 12,13 > $VARIANCE;
 		$UTILD/stat.sh colsum_odd_even $MEAN_RIO| paste $MEDIAN1 $MEAN $VARIANCE - | awk -v pf=$prefix 'BEGIN{OFS="\t"} {
 			$1 = pf OFS $1;
 			print $0;}';
