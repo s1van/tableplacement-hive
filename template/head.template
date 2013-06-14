@@ -3,7 +3,7 @@ set hive.io.rcfile.record.buffer.size=%%RGSIZE%%;
 
 set hive.exec.compress.output=%%COMPRESS_ON%%; 
 -- set io.seqfile.compression.type=%%COMPRESS_TYPE%%;
--- set mapred.reduce.tasks=%%REDUCER_NUM%%;
+set mapred.reduce.tasks=%%REDUCER_NUM%%;
  
 set hive.auto.convert.join=true;
 set hive.auto.convert.join.noconditionaltask=true;
