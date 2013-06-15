@@ -122,6 +122,7 @@ $XONF --file=$HADOOP_CONF/mapred-site.xml --key=mapred.job.tracker.handler.count
 $XONF --file=$HADOOP_CONF/mapred-site.xml --key=tasktracker.http.threads --value=$TT_TNUM
 $XONF --file=$HADOOP_CONF/mapred-site.xml --key=mapred.map.tasks.speculative.execution --value=false
 $XONF --file=$HADOOP_CONF/mapred-site.xml --key=mapred.reduce.tasks.speculative.execution --value=false
+$XONF --file=$HADOOP_CONF/mapred-site.xml --key=mapred.job.reuse.jvm.num.tasks --value=-1
 
 echo "Copy Configuration to all slaves ...";
 for host in $(cat $SLAVE); do
