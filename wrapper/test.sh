@@ -85,6 +85,18 @@ tpch-load() {
 	$WRAPD/load.sh $LOAD_WHICH $SCALE $HEADSET $HDFS_DATA_PATH > $OUTDIR/tpch_load.sql 2>&1;
 }
 
+ssdb-load() { 
+	local SCALE=$1;		#tiny, small, ...
+	local LOAD_WHICH=$2;	
+	local HEADSET=$3;	#includes RGSIZE, HDFS_BUF_SIZE
+	local OUTDIR=$4;
+	local HDFS_DATA_PATH=$5;
+
+	$WRAPD/load.sh $LOAD_WHICH $SCALE $HEADSET $HDFS_DATA_PATH > $OUTDIR/ssdb_load.sql 2>&1;
+}
+
+##########################Run Queries#############################
+
 ssb-query() { 
 	local TAG=$1;	
 	local HEADSET=$2;	#includes RGSIZE, HDFS_BUF_SIZE
@@ -133,6 +145,68 @@ tpch-query-q6() {
 	echo "Execute Queries ... [$TAG $HEADSET $OUTDIR]"
 	run_query tpch_q6_cg $OUTDIR/tpch_q6_${TAG} $HEADSET
 }
+
+ssdb-query-small() { 
+	local TAG=$1;	
+	local HEADSET=$2;	#includes RGSIZE, HDFS_BUF_SIZE
+	local OUTDIR=$3;
+
+	echo "Execute Queries ... [$TAG $HEADSET $OUTDIR]"
+	run_query ssdb_q1_easy $OUTDIR/ssdb_q1.easy_${TAG} $HEADSET
+}
+
+ssdb-query-normal() { 
+	local TAG=$1;	
+	local HEADSET=$2;	#includes RGSIZE, HDFS_BUF_SIZE
+	local OUTDIR=$3;
+
+	echo "Execute Queries ... [$TAG $HEADSET $OUTDIR]"
+	run_query ssdb_q1_easy $OUTDIR/ssdb_q1.easy_${TAG} $HEADSET
+	run_query ssdb_q1_medium $OUTDIR/ssdb_q1.medium_${TAG} $HEADSET
+}
+
+ssdb-query-large() { 
+	local TAG=$1;	
+	local HEADSET=$2;	#includes RGSIZE, HDFS_BUF_SIZE
+	local OUTDIR=$3;
+
+	echo "Execute Queries ... [$TAG $HEADSET $OUTDIR]"
+	run_query ssdb_q1_easy $OUTDIR/ssdb_q1.easy_${TAG} $HEADSET
+	run_query ssdb_q1_medium $OUTDIR/ssdb_q1.medium_${TAG} $HEADSET
+	run_query ssdb_q1_hard $OUTDIR/ssdb_q1.hard_${TAG} $HEADSET
+}
+
+ssdb-query-cg-small() { 
+	local TAG=$1;	
+	local HEADSET=$2;	#includes RGSIZE, HDFS_BUF_SIZE
+	local OUTDIR=$3;
+
+	echo "Execute Queries ... [$TAG $HEADSET $OUTDIR]"
+	run_query ssdb_q1_easy_cg $OUTDIR/ssdb_q1.easy.cg_${TAG} $HEADSET
+}
+
+ssdb-query-cg-normal() { 
+	local TAG=$1;	
+	local HEADSET=$2;	#includes RGSIZE, HDFS_BUF_SIZE
+	local OUTDIR=$3;
+
+	echo "Execute Queries ... [$TAG $HEADSET $OUTDIR]"
+	run_query ssdb_q1_easy_cg $OUTDIR/ssdb_q1.easy.cg_${TAG} $HEADSET
+	run_query ssdb_q1_medium_cg $OUTDIR/ssdb_q1.medium.cg_${TAG} $HEADSET
+}
+
+ssdb-query-cg-large() { 
+	local TAG=$1;	
+	local HEADSET=$2;	#includes RGSIZE, HDFS_BUF_SIZE
+	local OUTDIR=$3;
+
+	echo "Execute Queries ... [$TAG $HEADSET $OUTDIR]"
+	run_query ssdb_q1_easy_cg $OUTDIR/ssdb_q1.easy.cg_${TAG} $HEADSET
+	run_query ssdb_q1_medium_cg $OUTDIR/ssdb_q1.medium.cg_${TAG} $HEADSET
+	run_query ssdb_q1_hard_cg $OUTDIR/ssdb_q1.hard.cg_${TAG} $HEADSET
+}
+
+############################Main Logic##############################
 
 batch() {
         local LOAD_WHICH=$1; # column group, other optimizations
@@ -217,6 +291,17 @@ TPCH-Batch-Q6() {
 	batch tpch_q6 $@ tpch-load tpch-query-q6 false BLOCK;
 }
 
+SSDB-Batch-Default() {
+	echo "$0 [$@]"
+	local SCALE=$5;
+	batch ssdb_default $@ ssdb-load ssdb-query-${SCALE} false BLOCK;
+}
+
+SSDB-Batch-V1() {
+	echo "$0 [$@]"
+	local SCALE=$5;
+	batch ssdb_v1 $@ ssdb-load ssdb-query-cg-${SCALE} false BLOCK;
+}
 
 ##################
 ###    main    ###
@@ -226,10 +311,10 @@ usage()
         echo "Usage: `echo $0| awk -F/ '{print $NF}'` "
         echo "[arguments]:"
         echo "  TEST: SSB-Batch, SSB-Batch-DefaultBlockCpr, TPCH-Batch-DefaultBlockCpr"
-        echo "  RGSIZE"
+        echo "  RGSIZE"				#1-3
         echo "  HDFS_BUFFER_SIZES"
         echo "  OS_READ_AHEAD_BUFFER_SIZES"
-        echo "  REPEAT_TIMES"
+        echo "  REPEAT_TIMES"			#4-7
         echo "  SCALE_FACTOR"
         echo "  LOGDIR"
         echo "  HDFS_DATA_PATH"

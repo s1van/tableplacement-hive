@@ -6,6 +6,7 @@ CONFD=$CDIR/conf;
 TPLD=$CDIR/template;
 TPCHD=$CDIR/tpch;
 SSBD=$CDIR/ssb;
+SSDBD=$CDIR/ssdb;
 
 source $CONFD/site.conf;
 
@@ -39,6 +40,14 @@ ssb1_3_cg() { base $SSBD/q1_3.cg $1; }
 
 tpch_q6() { base $TPCHD/q6_forecast_revenue_change.hive $1; }
 tpch_q6_cg() { base $TPCHD/q6.cg.sql $1; }
+
+ssdb_q1_easy() { base $SSDBD/ssdb.q1.global.v1.easy.sql $1; }
+ssdb_q1_medium() { base $SSDBD/ssdb.q1.global.v1.medium.sql $1; }
+ssdb_q1_hard() { base $SSDBD/ssdb.q1.global.v1.hard.sql $1; }
+
+ssdb_q1_easy_cg() { base $SSDBD/ssdb.q1.global.v1.cg.easy.sql $1; }
+ssdb_q1_medium_cg() { base $SSDBD/ssdb.q1.global.v1.cg.medium.sql $1; }
+ssdb_q1_hard_cg() { base $SSDBD/ssdb.q1.global.v1.cg.hard.sql $1; }
 
 ##################
 ###    main    ###

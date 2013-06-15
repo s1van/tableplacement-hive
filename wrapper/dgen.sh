@@ -62,7 +62,7 @@ ssdb() {
 	
 	TNAME=cycle;
 	$HEXEC fs -mkdir $HDFS_PATH/$TNAME;
-	$SGEN -c $SCALE -t $SSDB_TILE_PATH -e $DBGEN -h $HEXEC -p $HDFS_PATH/$TNAME -f $HLIST
+	$SGEN -c $SCALE -t $SSDB_TILE_PATH -e $DBGEN -h $HEXEC -p $HDFS_PATH/$TNAME -f $HLIST -1
 }
 
 ##################

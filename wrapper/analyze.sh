@@ -139,7 +139,8 @@ call-list-stat() {
 	local DIR=$1;
 	local KEYWORD=$2;
 	local QUERY=$3;
-
+	
+	#query.prefix_query.suffix_Hxx_Oxx
 	list-stat $DIR $KEYWORD| sed -e "s@\"${KEYWORD}\"@@g" | awk -F'_' 'BEGIN{OFS="\t"} {print $1"."$2, substr($3,2), substr($4,2)}'| grep "$QUERY"; 
 }
 

@@ -1,0 +1,38 @@
+DROP TABLE IF EXISTS cycle;
+
+CREATE EXTERNAL TABLE IF NOT EXISTS cycle_t (
+	tile INT, x INT, y INT, pix INT, 
+	var INT, valid INT, sat INT, v0 INT, 
+	v1 INT, v2 INT, v3 INT, v4 INT, 
+	v5 INT, v6 INT)
+ROW FORMAT DELIMITED FIELDS TERMINATED BY ','
+STORED AS TEXTFILE LOCATION '%%HDFS_ROOT%%/cycle';
+
+
+CREATE TABLE cycle (
+	CG2 STRUCT<pix:INT, 
+	var:INT, valid:INT, sat:INT, v0:INT, 
+	v2:INT, v3:INT, v4:INT, v5:INT, 
+	v6:INT>,
+	tile INT, x INT, y INT,
+	CG1 STRUCT<v1:INT>)
+CLUSTERED BY (tile, x, y) INTO %%C_B_NUM%% BUCKETS
+ROW FORMAT SERDE "org.apache.hadoop.hive.serde2.columnar.LazyBinaryColumnarSerDe"
+STORED AS RCFILE LOCATION '%%HIVE_ROOT%%/cycle';
+
+
+INSERT OVERWRITE TABLE cycle 
+SELECT
+	named_struct( 
+	'pix', pix, 'var', var, 'valid', valid, 
+	'sat', sat, 'v0', v0, 'v2', v2, 
+	'v3', v3, 'v4', v4, 'v5', v5, 
+	'v6', v6),
+	tile, x, y,
+	named_struct('v1', v1)
+FROM cycle_t
+	CLUSTER BY tile, x, y;
+
+
+DROP TABLE cycle_t;
+

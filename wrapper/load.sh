@@ -82,8 +82,8 @@ ssdb_small() { base1 $1 $2 $3 $5 "$SSDB_BVARS" "16878055320" $4; }
 ssdb_normal() { base1 $1 $2 $3 $5 "$SSDB_BVARS" "67995457900" $4; }
 ssdb_large() { base1 $1 $2 $3 $5 "$SSDB_BVARS" "278600130760" $4; }
 
-ssdb_default() { ssdb_$1 $TPLD/ssdb.load.sql.default.template $3 ${SSDB_HIVE_R}1 $2 '0.55'; } 
-ssdb_v1() { ssdb_$1 $TPLD/ssdb.load.sql.v1.template $3 ${SSDB_HIVE_R}2 $2 '0.62'; } 
+ssdb_default() { ssdb_$1 $TPLD/ssdb.load.sql.default.template $3 ${SSDB_HIVE_R}1 $2 '0.63'; } #0.55
+ssdb_v1() { ssdb_$1 $TPLD/ssdb.load.sql.v1.template $3 ${SSDB_HIVE_R}2 $2 '0.63'; } 
 
 ##################
 ###    main    ###
