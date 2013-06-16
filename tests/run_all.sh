@@ -38,7 +38,7 @@ cd $SSB_DIR && $TESTD/run_ssb.sh ${SCALE} $REP $LOGDIR/ssb/ssb_s${SCALE} /ssb_s$
 mail -s "ssb tests complete!" </dev/null "$EMAIL";
 
 $HADOOP fs -rmr /ssb_s${SCALE}
-cd $TPCH_DIR && hive -e 'drop table lineorder;'
+cd $SSB_DIR && hive -e 'drop table lineorder;'
 
 
 echo "Test tpch ... "
@@ -50,3 +50,5 @@ cd $TPCH_DIR && $TESTD/run_tpch.sh ${SCALE} $REP $LOGDIR/tpch/tpch_s${SCALE} /tp
 mail -s "tpch tests complete!" </dev/null "$EMAIL";
 read -e;
 
+$HADOOP fs -rmr /tpch_s${SCALE}
+cd $TPCH_DIR && hive -e 'drop table lineitem;'
