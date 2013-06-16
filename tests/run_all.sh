@@ -25,7 +25,7 @@ SSB_DIR=$SDIR/ssb
 TPCH_DIR=$SDIR/tpch
 
 echo "Init ... "
-$WRAPD/setup.sh -b 256 -h 512,1024 -c 1,2 -r $REPLICA -d $HADOOP_TMP -i;
+$WRAPD/setup.sh -b 256 -h 512,1280 -c 1,1 -r $REPLICA -d $HADOOP_TMP -i;
 
 
 sleep 8;
