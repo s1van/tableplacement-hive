@@ -30,7 +30,7 @@ echo "Init ... "
 
 sleep 8;
 echo "Test ssdb ... "
-$WRAPD/dgen.sh -s ${SCALE} -p /ssdb_s${SCALE} -f ssdb;
+$WRAPD/dgen.sh -s ${SCALE} -p /ssdb_${SCALE} -f ssdb;
 mail -s "ssdb ${SCALE} generated" </dev/null "$EMAIL";
 #read -e;
 
