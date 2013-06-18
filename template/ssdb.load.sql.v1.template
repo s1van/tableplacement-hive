@@ -31,7 +31,8 @@ SELECT
 	'v6', v6, 'tile', tile), 
 	named_struct('x', x, 'y', y, 'v1', v1)
 FROM cycle_t
-	CLUSTER BY `_c0`.tile, `_c1`.y, `_c1`.x;
+	SORT BY `_c0`.tile, `_c1`.y, `_c1`.x;
+-- CLUSTER BY `_c0`.tile, `_c1`.y, `_c1`.x;
 
 
 DROP TABLE cycle_t;

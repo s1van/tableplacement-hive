@@ -14,7 +14,8 @@ create table cycle(tile INT, x INT, y INT, pix INT, var INT, valid INT,
 -- CLUSTERED BY (tile, y, x) INTO %%C_B_NUM%% BUCKETS 
 
 INSERT overwrite table cycle select * from cycle_t
-	CLUSTER BY tile, y, x;
+	SORT BY tile, y, x;
+-- CLUSTER BY tile, y, x;
 	
 DROP TABLE cycle_t;
 
