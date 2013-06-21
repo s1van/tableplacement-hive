@@ -96,8 +96,9 @@ extract() {
 	paste $STAT $TMP1 > $TMP2;
 	cp $TMP2 $STAT;
 
+	#IOSTAT is collected by pdsf, so the format "host: data"
 	for host in $HOSTLIST; do
-		iostat1 $host $DEV $IOSTAT $STAT;
+		iostat1 ${host}: $DEV $IOSTAT $STAT;
 	done
 	
 	echo "";
